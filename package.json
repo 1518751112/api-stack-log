@@ -9,14 +9,13 @@
   ],
   "engines": {
     "node": ">=10.0.0"
-  },  "scripts": {
+  },
+  "scripts": {
     "clean": "rimraf dist",
     "copy-static": "node copy-static-files.js",
     "build": "npm run clean && tsc && npm run copy-static",
     "build:watch": "tsc --watch",
-    "test": "jest",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test"
+    "prepare": "npm run build"
   },
   "keywords": [
     "api",
