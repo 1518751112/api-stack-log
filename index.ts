@@ -140,7 +140,7 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       console.log('API Logger: 日志中间件已注册');
 
       // 设置路由前缀
-      setRoutePrefix(config.routePrefix as string);
+      setRoutePrefix(config.routePrefix as string, config.uiService);
 
       // 注册日志查询路由
       app.use(config.routePrefix as string, logRoutes);

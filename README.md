@@ -194,3 +194,152 @@ UI部分功能开发中
 - JSON 数据高亮显示✅
 - 支持日志对比功能❌
 - 支持左右分栏或单页显示切换✅
+
+## 安装或初始化报错
+在 CentOS 系统中遇到 `/lib64/libstdc++.so.6: version 'CXXABI_1.3.8' not found` 错误，通常是因为 **系统自带的 `libstdc++.so.6` 版本过低**，无法满足某些依赖库（如 `sqlite3`）对 C++ ABI 的要求。以下是详细解决方案：
+备选方案：手动更新【这个操作简单也快】
+
+---
+
+### **1. 确认问题根源**
+#### 检查当前 `libstdc++.so.6` 支持的 CXXABI 版本：
+```bash
+# 查看当前 libstdc++.so.6 支持的 CXXABI 版本
+strings /usr/lib64/libstdc++.so.6 | grep 'CXXABI_'
+
+# 如果输出中没有 CXXABI_1.3.8，说明版本过低
+```
+
+---
+
+### **2. 安装高版本 GCC 工具链**
+CentOS 默认的 GCC 版本较旧（如 4.8.5），需通过 `devtoolset` 安装新版 GCC。
+
+#### 2.1 启用 SCL 仓库并安装 devtoolset-7：
+```bash
+sudo yum install centos-release-scl
+sudo yum install devtoolset-7
+```
+
+#### 2.2 激活 devtoolset-7 环境：
+```bash
+# 临时激活（仅在当前终端生效）
+scl enable devtoolset-7 bash
+
+# 验证 GCC 版本
+gcc --version  # 应显示 gcc 7.x.x
+```
+
+#### 2.3 永久激活（可选）：
+将以下内容添加到 `~/.bashrc` 或 `~/.bash_profile`：
+```bash
+source /opt/rh/devtoolset-7/enable
+export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:$LD_LIBRARY_PATH
+```
+
+---
+
+### **3. 重新编译 SQLite3 模块**
+在激活的高版本 GCC 环境下重新编译 `sqlite3` 模块：
+
+#### 3.1 清理旧编译文件：
+```bash
+cd /path/to/your/project
+rm -rf node_modules
+```
+
+#### 3.2 指定使用 devtoolset-7 的编译环境：
+```bash
+# 强制从源码重新编译，并确保使用新工具链
+npm install sqlite3 --build-from-source --verbose
+```
+
+---
+
+### **4. 验证 `libstdc++.so.6` 版本**
+重新编译后，确认链接的库版本已更新：
+```bash
+# 查看 sqlite3.node 依赖的库
+ldd node_modules/sqlite3/build/Release/node_sqlite3.node | grep libstdc++
+
+# 输出应包含 devtoolset-7 的路径，例如：
+# libstdc++.so.6 => /opt/rh/devtoolset-7/root/usr/lib64/libstdc++.so.6
+```
+
+---
+
+### **5. 修复运行时库路径**
+确保应用程序运行时加载新版本的 `libstdc++.so.6`：
+
+#### 5.1 临时设置环境变量：
+```bash
+export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:$LD_LIBRARY_PATH
+node your_app.js
+```
+
+#### 5.2 永久生效（推荐）：
+在启动脚本或 `~/.bashrc` 中添加：
+```bash
+echo 'export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+### **6. 备选方案：手动更新 libstdc++.so.6**
+如果无法使用 devtoolset，可手动替换库文件（**风险较高，谨慎操作**）：
+
+#### 6.1 下载高版本 `libstdc++.so.6`：
+```bash
+# 从高版本 GCC 系统中复制 libstdc++.so.6.0.24 或更高版本
+wget http://ftp.de.debian.org/debian/pool/main/g/gcc-8/libstdc++6_8.3.0-6_amd64.deb
+ar x libstdc++6_8.3.0-6_amd64.deb
+tar -xvf data.tar.xz
+```
+
+#### 6.2 替换系统库：
+```bash
+sudo cp ./usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.25 /usr/lib64/
+sudo ln -sf /usr/lib64/libstdc++.so.6.0.25 /usr/lib64/libstdc++.so.6
+```
+
+---
+
+### **7. 验证修复**
+运行应用程序或检查符号版本：
+```bash
+# 检查 CXXABI_1.3.8 是否存在
+strings /opt/rh/devtoolset-7/root/usr/lib64/libstdc++.so.6 | grep 'CXXABI_1.3.8'
+
+# 输出应包含 CXXABI_1.3.8
+# 重新安装依赖
+npm i --force
+#安装完成后运行程序
+
+```
+
+---
+
+### **常见问题排查**
+1. **编译工具链缺失**  
+   确保已安装 `gcc`、`g++`、`make`：
+   ```bash
+   sudo yum install gcc gcc-c++ make
+   ```
+
+2. **Python 版本问题**  
+   `node-gyp` 可能需要 Python 2.7：
+   ```bash
+   sudo yum install python2
+   npm config set python python2.7
+   ```
+
+3. **权限问题**  
+   确保对项目目录有读写权限：
+   ```bash
+   sudo chown -R $(whoami):$(whoami) /path/to/project
+   ```
+
+---
+
+通过上述步骤升级 GCC 工具链并重新编译，可彻底解决 `CXXABI_1.3.8` 缺失问题。
