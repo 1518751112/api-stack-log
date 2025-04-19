@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import {NextFunction, Request, Response} from 'express';
 import ApiLog from '../db/ApiLog';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import cleanStack from '../clean-stack';
 import {ApiLoggerOptions} from "../../index";
 
@@ -139,7 +139,7 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
       id: uuidv4(),
       method: req.method,
       path: req.path,
-      ip: req.ip || req.socket.remoteAddress || '',
+      ip: (req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress as string) || (req.headers['x-real-ip'] as string) || req.ip || '',
       headers: serializeAndTruncate(req.headers),
       query: serializeAndTruncate(req.query),
       params: serializeAndTruncate(req.params),

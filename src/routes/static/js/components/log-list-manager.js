@@ -156,7 +156,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         // 上一页
         const prevLi = document.createElement('li');
         prevLi.className = `page-item ${this.currentPage === 1 ? 'disabled' : ''}`;
-        prevLi.innerHTML = `<a class="page-link" href="#" aria-label="上一页"><i class="bi bi-chevron-left"></i></a>`;
+        prevLi.innerHTML = `<div class="page-link" aria-label="上一页"><i class="bi bi-chevron-left"></i></div>`;
 
         if (this.currentPage > 1) {
             prevLi.addEventListener('click', () => this.goToPage(this.currentPage - 1));
@@ -175,7 +175,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         for (let i = startPage; i <= endPage; i++) {
             const pageLi = document.createElement('li');
             pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
-            pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+            pageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${i}</div>`;
 
             if (i !== this.currentPage) {
                 pageLi.addEventListener('click', () => this.goToPage(i));
@@ -187,7 +187,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         // 下一页
         const nextLi = document.createElement('li');
         nextLi.className = `page-item ${this.currentPage === totalPages ? 'disabled' : ''}`;
-        nextLi.innerHTML = `<a class="page-link" href="#" aria-label="下一页"><i class="bi bi-chevron-right"></i></a>`;
+        nextLi.innerHTML = `<div class="page-link" aria-label="下一页"><i class="bi bi-chevron-right"></i></div>`;
 
         if (this.currentPage < totalPages) {
             nextLi.addEventListener('click', () => this.goToPage(this.currentPage + 1));
