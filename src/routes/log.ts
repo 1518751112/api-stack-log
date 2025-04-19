@@ -1,8 +1,7 @@
-import { Router, Request, Response } from 'express';
-import { Op } from 'sequelize';
+import express, {Request, Response, Router} from 'express';
+import {Op} from 'sequelize';
 import ApiLog from '../db/ApiLog';
 import path from 'path';
-import express from 'express';
 import fs from 'fs';
 
 // let routePrefix = '/api-logs'; // 默认路由前缀
@@ -16,10 +15,10 @@ export function setRoutePrefix(prefix: string, uiService?: string) {
     const configPath = path.join(__dirname, './static/js/components/config-manager_base.js');
     const newConfigPath = path.join(__dirname, './static/js/components/config-manager.js');
     const configContent = fs.readFileSync(configPath, 'utf-8');
-    const newContent = configContent.replace(/"path":\s*['"]?[^'"]*['"]?/g, `path: '${prefix.replace(/^\//, '')}'`);
+    let newContent = configContent.replace(/"path":\s*['"]?[^'"]*['"]?/g, `path: '${prefix.replace(/^\//, '')}'`);
     //替换uiService
     if(uiService!=null){
-        newContent.replace(/"apiBasePath":\s*['"]?[^'"]*['"]?/g, `"apiBasePath": '${uiService}'`);
+        newContent = newContent.replace(/"apiBasePath":\s*['"]?[^'"]*['"]?/g, `"apiBasePath": '${uiService}'`);
     }
     //没有当前文件就创建newConfigPath
     fs.writeFileSync(newConfigPath, newContent, 'utf-8');
