@@ -45,11 +45,11 @@
     "express": ">=4.x"
   },
   "bugs": {
-    "url": "https://github.com/1518751112/alioss-uploader-cli/issues"
+    "url": "https://github.com/1518751112/api-stack-log/issues"
   },
-  "homepage": "https://github.com/1518751112/alioss-uploader-cli#readme",
+  "homepage": "https://github.com/1518751112/api-stack-log#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/1518751112/alioss-uploader-cli.git"
+    "url": "git+https://github.com/1518751112/api-stack-log.git"
   }
 }
