@@ -2,13 +2,13 @@
  * 配置管理器组件
  * 负责加载和管理应用配置
  */
-/** @type {{ config: { apiBasePath: string, pageSize: number, path: string }, configLoaded: boolean, getApiUrl: (endpoint: string) => string }} */
+/** @type {{ config: { apiBasePath: string, pageSize: number, path: string }, configLoaded: boolean, getApiUrl: (endpoint: string) => string },hash:string} */
 const ConfigManager = {
     // 配置
     config: {
-        apiBasePath: '', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
+        "apiBasePath": '', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
         pageSize: 20,    // 每页显示的记录数
-        "path": 'api-logs' // API日志路径
+        path: 'api-logs' // API日志路径
     },
 
     configLoaded: false,
@@ -27,5 +27,6 @@ const ConfigManager = {
         }
 
         return `${this.config.apiBasePath}/${this.config.path}${endpoint}`;
-    }
+    },
+    hash:null
 };

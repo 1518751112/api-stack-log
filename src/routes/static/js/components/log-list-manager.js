@@ -6,6 +6,7 @@
  * @typedef {Object} LogListManager
  * @property {function(number): void} goToPage - 跳转到指定页
  * @property {function(): Promise<void>} loadLogs - 加载日志列表数据
+ * @property {function(): Promise<void>} viewLogDetails - 查看日志详情
  */
 const LogListManager = /** @type {LogListManager} */ ({
     // 状态变量
@@ -82,7 +83,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             const row = document.createElement('tr');
             row.className = 'log-row';
             row.innerHTML = `
-                <td>${log.id}</td>
+                <td class="view-btn" style="cursor: pointer;color:#005aef">${log.id}</td>
                 <td>${UIManager.formatDate(log.timestamp)}</td>
                 <td>
                     <span class="badge ${UIManager.getMethodClass(log.method)}">${log.method}</span>
@@ -99,13 +100,31 @@ const LogListManager = /** @type {LogListManager} */ ({
             `;
 
             // 为整行添加点击事件监听器
-            row.addEventListener('click', () => this.viewLogDetails(log.id));
+            row.addEventListener('click', () => {
+                event.stopPropagation(); // 防止事件冒泡
+                if(ConfigManager.hash=='list'){
+                    UIManager.jumpHash('info?id=' + log.id);
+                }else{
+                    //从右边查看详情
+                    this.viewLogDetails(log.id)
+                }
+            });
 
             tableBody.appendChild(row);
 
-            // 为查看按钮添加事件监听
-            // const viewBtn = row.querySelector('.view-btn');
-            // viewBtn.addEventListener('click', () => this.viewLogDetails(log.id));
+            // 为复制按钮添加事件监听 同时防止父级事件冒泡或穿透
+            const viewBtn = row.querySelector('.view-btn');
+            if (viewBtn) {
+                viewBtn.addEventListener('click', (event) => {
+                    event.stopPropagation(); // 防止事件冒泡
+                    navigator.clipboard.writeText(log.id).then(() => {
+                        UIManager.showAlert('已复制id到剪贴板', 'success');
+                    }).catch(err => {
+                        console.error('复制失败:', err);
+                        UIManager.showAlert('复制失败，请重试', 'danger');
+                    });
+                });
+            }
         });
 
         // 添加行悬停动画效果
@@ -176,7 +195,7 @@ const LogListManager = /** @type {LogListManager} */ ({
 
         pagination.appendChild(nextLi);
     },
-      /**
+    /**
      * 跳转到指定页
      * @param {number} page 页码
      */
@@ -201,6 +220,17 @@ const LogListManager = /** @type {LogListManager} */ ({
      */
     viewLogDetails: async function(id) {
         try {
+            // 显示详情页面，添加动画
+            const detailPage = document.getElementById('detail-page');
+            UIManager.showDetailPage(detailPage);
+            if(ConfigManager.hash=='info'){
+                //显示返回按钮
+                document.getElementById('back-btn').style.display = 'block';
+            }else{
+                //隐藏返回按钮
+                document.getElementById('back-btn').style.display = 'none';
+            }
+
             if(id==this.logId)return
             this.logId = id
             // 发起API请求
@@ -212,9 +242,7 @@ const LogListManager = /** @type {LogListManager} */ ({
 
             const logDetails = await response.json();
 
-            // 显示详情页面，添加动画
-            const detailPage = document.getElementById('detail-page');
-            UIManager.showDetailPage(detailPage);
+
 
             // 填充基本信息
             document.getElementById('detail-id').textContent = logDetails.id;
@@ -285,5 +313,15 @@ const LogListManager = /** @type {LogListManager} */ ({
 
         // 初始化栈轨迹折叠功能
         UIManager.initStackToggle();
+        const page_mode = document.getElementById('page_mode');
+        page_mode.addEventListener('click',()=>{
+            if(ConfigManager.hash=='list'){
+                UIManager.jumpHash('/');
+                page_mode.textContent = "双列模式"
+            }else if(ConfigManager.hash!='info'){
+                UIManager.jumpHash('list');
+                page_mode.textContent = "单列模式"
+            }
+        })
     }
 });

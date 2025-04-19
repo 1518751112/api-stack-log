@@ -1,8 +1,8 @@
-import { Express } from 'express';
-import ApiLog,{ApiLogInit} from './src/db/ApiLog';
+import {Express} from 'express';
+import ApiLog, {ApiLogInit} from './src/db/ApiLog';
 import apiLoggerMiddleware from './src/middleware/apiLogger';
-import logRoutes, { setRoutePrefix } from './src/routes/log';
-import { initDatabase } from './src/db/logdb';
+import logRoutes, {setRoutePrefix} from './src/routes/log';
+import {initDatabase} from './src/db/logdb';
 
 /**
  * 日志系统配置接口
@@ -145,44 +145,45 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       // 注册日志查询路由
       app.use(config.routePrefix as string, logRoutes);
       console.log(`API Logger: 日志查询接口已注册在 ${config.routePrefix} 路径下`);
-
+      // 启动定时清理任务
+      if ((config.maxRecords ?? 0) > 0 || (config.maxDays ?? 0) > 0) {
+        const intervalMs = ((config.cleanupInterval ?? 60)) * 60 * 1000;
+        setInterval(async () => {
+          try {
+            // 按最大条数清理
+            if ((config.maxRecords ?? 0) > 0) {
+              const total = await ApiLog.count();
+              if (total > (config.maxRecords ?? 0)) {
+                const delCount = Math.ceil((config.maxRecords ?? 0) / 10);
+                const oldLogs = await ApiLog.findAll({
+                  order: [['timestamp', 'ASC']],
+                  limit: delCount
+                });
+                const ids = oldLogs.map(l => l.id);
+                if (ids.length) await ApiLog.destroy({ where: { id: ids } });
+                console.log(`[API Logger] 已自动清理最旧日志 ${ids.length} 条`);
+              }
+            }
+            // 按天数清理
+            if ((config.maxDays ?? 0) > 0) {
+              const expire = new Date(Date.now() - (config.maxDays ?? 0) * 24 * 60 * 60 * 1000);
+              const delNum = await ApiLog.destroy({ where: { timestamp: { ['lt']: expire } } });
+              if (delNum > 0) console.log(`[API Logger] 已自动清理过期日志 ${delNum} 条`);
+            }
+          } catch (e) {
+            console.error('[API Logger] 日志自动清理异常', e);
+          }
+        }, intervalMs);
+        console.log(`[API Logger] 日志自动清理任务已启动，间隔${config.cleanupInterval||60}分钟`);
+      }
     } catch (error) {
       console.error('API Logger: 初始化失败', error);
       throw error;
     }
+
   }
 
-  // 启动定时清理任务
-  if ((config.maxRecords ?? 0) > 0 || (config.maxDays ?? 0) > 0) {
-    const intervalMs = ((config.cleanupInterval ?? 60)) * 60 * 1000;
-    setInterval(async () => {
-      try {
-        // 按最大条数清理
-        if ((config.maxRecords ?? 0) > 0) {
-          const total = await ApiLog.count();
-          if (total > (config.maxRecords ?? 0)) {
-            const delCount = Math.ceil((config.maxRecords ?? 0) / 10);
-            const oldLogs = await ApiLog.findAll({
-              order: [['timestamp', 'ASC']],
-              limit: delCount
-            });
-            const ids = oldLogs.map(l => l.id);
-            if (ids.length) await ApiLog.destroy({ where: { id: ids } });
-            console.log(`[API Logger] 已自动清理最旧日志 ${ids.length} 条`);
-          }
-        }
-        // 按天数清理
-        if ((config.maxDays ?? 0) > 0) {
-          const expire = new Date(Date.now() - (config.maxDays ?? 0) * 24 * 60 * 60 * 1000);
-          const delNum = await ApiLog.destroy({ where: { timestamp: { ['lt']: expire } } });
-          if (delNum > 0) console.log(`[API Logger] 已自动清理过期日志 ${delNum} 条`);
-        }
-      } catch (e) {
-        console.error('[API Logger] 日志自动清理异常', e);
-      }
-    }, intervalMs);
-    console.log(`[API Logger] 日志自动清理任务已启动，间隔${config.cleanupInterval||60}分钟`);
-  }
+
 }
 
 // 导出模型和接口

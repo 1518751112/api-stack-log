@@ -62,11 +62,11 @@ const UIManager = {
      * 返回列表页面
      */
     backToList: function() {
-        const detailPage = document.getElementById('detail-page');
-        const listPage = document.getElementById('list-page');
+        const detailPage = document.getElementById('detail-panel');
+        const listPage = document.getElementById('list-panel');
 
         if (!detailPage || !listPage) return;
-
+        UIManager.jumpHash('list')
         // 淡出动画
         detailPage.style.transition = 'opacity 0.3s ease';
         detailPage.style.opacity = '0';
@@ -74,6 +74,7 @@ const UIManager = {
         setTimeout(() => {
             detailPage.style.display = 'none';
             listPage.style.display = 'block';
+            listPage.style.width = '100%';
             setTimeout(() => {
                 listPage.style.opacity = '1';
             }, 10);
@@ -350,5 +351,100 @@ const UIManager = {
                 }
             }
         });
+    },
+
+    /**
+     * 单独打开首页 id=list-panel
+     * 显示首页 宽度100%
+     * 隐藏详情页面
+     */
+    openHome: function(param) {
+        const listPage = document.getElementById('list-panel');
+        const detailPage = document.getElementById('detail-panel');
+        const page_mode = document.getElementById('page_mode');
+
+        if (!listPage || !detailPage) return;
+
+        // 显示首页
+        listPage.style.display = 'block';
+        listPage.style.width = '100%';
+        listPage.style.opacity = '1';
+
+        // 隐藏详情页面
+        detailPage.style.display = 'none';
+        page_mode.textContent = '单列模式';
+
+    },
+
+    /**
+     * 单独打开详情页
+     * 显示详情 宽度100%
+     * 隐藏首页页面
+     */
+    openDetail: function(param) {
+        const listPage = document.getElementById('list-panel');
+        const detailPage = document.getElementById('detail-panel');
+
+        if (!listPage || !detailPage) return;
+
+        // 显示详情页面
+        detailPage.style.display = 'block';
+        detailPage.style.width = '100%';
+        detailPage.style.opacity = '1';
+        if(param?.id){
+            LogListManager.viewLogDetails(param?.id)
+        }
+
+        // 隐藏首页
+        listPage.style.display = 'none';
+    },
+
+    //默认页面各展示50%
+    defaultPage: function(param) {
+        const listPage = document.getElementById('list-panel');
+        const detailPage = document.getElementById('detail-panel');
+        const page_mode = document.getElementById('page_mode');
+
+        if (!listPage || !detailPage) return;
+
+        // 显示首页
+        listPage.style.display = 'block';
+        listPage.style.width = '50%';
+        listPage.style.opacity = '1';
+
+        // 显示详情页面
+        detailPage.style.display = 'block';
+        detailPage.style.width = '50%';
+        detailPage.style.opacity = '1';
+        page_mode.textContent = '双列模式';
+    },
+    //     跳转路由hash
+    jumpHash: function(hash) {
+        if (!hash) return;
+        window.location.hash = hash;
+    },
+
+    /**
+     * 显示加载动画
+     * @param {boolean} show 是否显示加载动画
+     */
+    showLoading: function(show) {
+        const loadingOverlay = document.getElementById('loading-overlay');
+        if (show) {
+            loadingOverlay.style.display = 'block';
+        } else {
+            loadingOverlay.style.display = 'none';
+        }
+    },
+
+    /**
+     * 更新文档标题
+     * @param {string} title 文档标题
+     */
+    updateDocumentTitle: function(title) {
+        const titleElement = document.getElementById('document-title');
+        if (titleElement) {
+            titleElement.textContent = title || '文档编辑器';
+        }
     }
 }

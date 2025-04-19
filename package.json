@@ -1,6 +1,6 @@
 {
   "name": "api-stack-log",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "高性能的 API 请求日志系统，可以直接集成到 Express 应用中",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
