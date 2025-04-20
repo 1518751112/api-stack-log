@@ -83,8 +83,8 @@ const LogListManager = /** @type {LogListManager} */ ({
             const row = document.createElement('tr');
             row.className = 'log-row';
             row.innerHTML = `
-                <td class="view-btn" style="cursor: pointer;color:#005aef">${log.id}</td>
-                <td>${UIManager.formatDate(log.timestamp)}</td>
+                <td class="view-btn" style="cursor: pointer;color:#005aef" title="${log.id}">${log.id}</td>
+                <td>${UIManager.formatDate(log.timestamp,true)}</td>
                 <td>
                     <span class="badge ${UIManager.getMethodClass(log.method)}">${log.method}</span>
                 </td>
@@ -307,7 +307,16 @@ const LogListManager = /** @type {LogListManager} */ ({
     init: function() {
         // 注册返回列表按钮事件
         document.getElementById('back-btn').addEventListener('click', UIManager.backToList);
-
+        //每页数量控制
+        const pageSize = ConfigManager.config.pageSize;
+        const pageSizeSelect = document.getElementById('page-size-select');
+        pageSizeSelect.value = pageSize;
+        pageSizeSelect.addEventListener('change', (event) => {
+            const selectedPageSize = parseInt(event.target.value, 10);
+            ConfigManager.config.pageSize = selectedPageSize;
+            this.currentPage = 1; // 重置为第一页
+            this.loadLogs();
+        });
         // 初始加载数据
         this.loadLogs();
 

@@ -129,6 +129,13 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
     if (isWhitelisted || isSystemApi) {
       return next();
     }
+    //过滤请求方法
+    if (options.filterRequestMethods && options.filterRequestMethods.length > 0) {
+      const method = req.method.toUpperCase();
+      if (options.filterRequestMethods.includes(method)) {
+        return next();
+      }
+    }
 
     // 记录请求开始时间
     const startTime = process.hrtime();

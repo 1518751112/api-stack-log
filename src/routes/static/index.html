@@ -140,8 +140,17 @@
                         <div class="pagination-info">
                             总共 <span id="total-records">0</span> 条记录
                         </div>
-                        <div>
-                            <ul class="pagination pagination-sm" id="pagination">
+                        <div class="d-flex justify-content-center align-items-center">
+                            <select id="page-size-select" class="form-select d-inline-block w-auto">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                                <option value="1000">1000</option>
+                            </select>
+                            <ul class="pagination pagination-sm" id="pagination" style="margin-bottom: 0;">
                                 <!-- 分页将动态填充 -->
                             </ul>
                         </div>

@@ -64,7 +64,9 @@ await initApiLogger(app, {
   excludeSystemApis: true,        // 是否将 API 记录系统自身的路径加入白名单
   maxRecords: 10000,              // 日志最大保存条数，超出删除最旧的 10%
   maxDays: 30,                    // 日志最大保存天数
-  cleanupInterval: 60             // 日志清理检测间隔（分钟）
+  cleanupInterval: 60,             // 日志清理检测间隔（分钟）
+  filterRequestMethods: ["OPTIONS"]             // 过滤请求类型
+   
 });
 ```
 
@@ -87,6 +89,7 @@ await initApiLogger(app, {
 | maxRecords | number | 0 | 日志最大保存条数，超出删除最旧的 10%（0 为不限制） |
 | maxDays | number | 0 | 日志最大保存天数（0 为不限制） |
 | cleanupInterval | number | 60 | 日志清理检测间隔（分钟） |
+| filterRequestMethods | string[]             | []  | 过滤请求类型
 
 ## 高级用法
 

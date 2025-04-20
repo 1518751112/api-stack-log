@@ -93,6 +93,11 @@ export interface ApiLoggerOptions {
    * 日志清理检测间隔（单位：分钟，默认60分钟）
    */
   cleanupInterval?: number;
+  /**
+   * 过滤请求类型
+   * 例如：['GET', 'POST']
+   */
+  filterRequestMethods?: string[];
 }
 
 /**
@@ -112,6 +117,7 @@ const defaultOptions: ApiLoggerOptions = {
   maxRecords: 0, // 0为不限制
   maxDays: 0, // 0为不限制
   cleanupInterval: 60, // 单位：分钟
+  filterRequestMethods:[]
 };
 
 /**
