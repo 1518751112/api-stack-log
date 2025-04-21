@@ -81,7 +81,7 @@ body {
 
 .table th,
 .table td {
-  padding: 12px 15px;
+  padding: 10px 6px;
   vertical-align: middle;
   border-top: 1px solid #e9ecef;
 }
@@ -385,9 +385,9 @@ body {
 }
 
 @keyframes sk-bounce {
-  0%, 100% { 
+  0%, 100% {
     transform: scale(0.0);
-  } 50% { 
+  } 50% {
     transform: scale(1.0);
   }
 }
@@ -487,20 +487,20 @@ body {
   .container {
     padding: 10px;
   }
-  
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .card-header .btn {
     margin-top: 10px;
   }
-  
+
   .table th, .table td {
     padding: 8px;
   }
-  
+
   .table .text-truncate {
     max-width: 100px;
   }
@@ -511,16 +511,16 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .detail-header .id {
     margin-left: 0;
     margin-top: 10px;
   }
-  
+
   .nav-tabs {
     flex-direction: column;
   }
-  
+
   .nav-item {
     margin-bottom: 5px;
   }
@@ -536,13 +536,14 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.table-logs th:nth-child(1), .table-logs td:nth-child(1) { width: 300px; }
-.table-logs th:nth-child(2), .table-logs td:nth-child(2) { width: 200px; }
-.table-logs th:nth-child(3), .table-logs td:nth-child(3) { width: 80px; }
-.table-logs th:nth-child(4), .table-logs td:nth-child(4) { width: 220px; }
-.table-logs th:nth-child(5), .table-logs td:nth-child(5) { width: 80px; }
-.table-logs th:nth-child(6), .table-logs td:nth-child(6) { width: 120px; }
-.table-logs th:nth-child(7), .table-logs td:nth-child(7) { width: 120px; }
+.table-logs th:nth-child(1), .table-logs td:nth-child(1) { width: 2.1vw; }
+.table-logs th:nth-child(2), .table-logs td:nth-child(2) { width: 12vw; }
+.table-logs th:nth-child(3), .table-logs td:nth-child(3) { width: 10vw; }
+.table-logs th:nth-child(4), .table-logs td:nth-child(4) { width: 3vw; }
+.table-logs th:nth-child(5), .table-logs td:nth-child(5) { width: 10vw; }
+.table-logs th:nth-child(6), .table-logs td:nth-child(6) { width: 3vw; }
+.table-logs th:nth-child(7), .table-logs td:nth-child(7) { width: 4vw; }
+.table-logs th:nth-child(8), .table-logs td:nth-child(8) { width: 5vw; }
 
 .table-responsive {
   overflow-x: auto;

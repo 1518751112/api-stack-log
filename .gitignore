@@ -38,3 +38,4 @@ gitfoo.sh
 config.yaml
 package-lock.json
 yarn.lock
+*.sqlite

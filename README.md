@@ -30,7 +30,7 @@ import initApiLogger from 'api-stack-log';
 const app = express();
 
 // 在所有路由之前初始化 API 日志系统
-await initApiLogger(app);
+await initApiLogger(app,{cors:true});
 
 // 你的其他路由和中间件...
 app.get('/api/example', (req, res) => {
@@ -65,7 +65,8 @@ await initApiLogger(app, {
   maxRecords: 10000,              // 日志最大保存条数，超出删除最旧的 10%
   maxDays: 30,                    // 日志最大保存天数
   cleanupInterval: 60,             // 日志清理检测间隔（分钟）
-  filterRequestMethods: ["OPTIONS"]             // 过滤请求类型
+  filterRequestMethods: ["OPTIONS"],             // 过滤请求类型
+  cors: true            // 允许所有跨域请求
    
 });
 ```
@@ -90,6 +91,7 @@ await initApiLogger(app, {
 | maxDays | number | 0 | 日志最大保存天数（0 为不限制） |
 | cleanupInterval | number | 60 | 日志清理检测间隔（分钟） |
 | filterRequestMethods | string[]             | []  | 过滤请求类型
+| cors | boolean \| CorsOptions \| CorsOptionsDelegate<any>  | null  | 跨域配置
 
 ## 高级用法
 
@@ -205,7 +207,7 @@ UI部分功能开发中
 <img alt="日志详情" height="400" src="https://github.com/1518751112/api-stack-log/raw/HEAD/image/2.png" onerror="this.onerror=null; this.src='./image/2.png';" style="max-width: 100%;"/>
 
 ## 安装或初始化报错
-在 CentOS 系统中遇到 `/lib64/libstdc++.so.6: version 'CXXABI_1.3.8' not found` 错误，通常是因为 **系统自带的 `libstdc++.so.6` 版本过低**，无法满足某些依赖库（如 `sqlite3`）对 C++ ABI 的要求。以下是详细解决方案：
+1.在 CentOS 系统中遇到 `/lib64/libstdc++.so.6: version 'CXXABI_1.3.8' not found` 错误，通常是因为 **系统自带的 `libstdc++.so.6` 版本过低**，无法满足某些依赖库（如 `sqlite3`）对 C++ ABI 的要求。以下是详细解决方案：
 备选方案：手动更新【这个操作简单也快】
 
 ---
@@ -318,7 +320,7 @@ sudo ln -sf /usr/lib64/libstdc++.so.6.0.25 /usr/lib64/libstdc++.so.6
 运行应用程序或检查符号版本：
 ```bash
 # 检查 CXXABI_1.3.8 是否存在
-strings /opt/rh/devtoolset-7/root/usr/lib64/libstdc++.so.6 | grep 'CXXABI_1.3.8'
+strings /usr/lib64/libstdc++.so.6 | grep 'CXXABI_'
 
 # 输出应包含 CXXABI_1.3.8
 # 重新安装依赖
@@ -349,6 +351,30 @@ npm i --force
    sudo chown -R $(whoami):$(whoami) /path/to/project
    ```
 
----
 
 通过上述步骤升级 GCC 工具链并重新编译，可彻底解决 `CXXABI_1.3.8` 缺失问题。
+
+---
+2.GLIBC_2.18缺失导致Node.js报错的问题
+---
+
+一键安装脚本
+```bash
+#!/bin/bash
+# 安装编译依赖
+yum install -y gcc make wget bison
+
+# 下载glibc-2.18源码并编译
+cd /tmp
+wget http://ftp.gnu.org/gnu/glibc/glibc-2.18.tar.gz
+tar -zxvf glibc-2.18.tar.gz
+cd glibc-2.18
+mkdir build && cd build
+../configure --prefix=/usr --disable-profile --enable-add-ons --with-headers=/usr/include --with-binutils=/usr/bin
+make -j$(nproc) && make install
+
+# 验证安装结果
+strings /lib64/libc.so.6 | grep GLIBC_2.18
+echo "GLIBC_2.18安装完成，请重启服务或系统以确保生效！"
+```
+

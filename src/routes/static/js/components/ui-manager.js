@@ -158,7 +158,22 @@ const UIManager = {
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
     },
+    /**
+     * 计算数据大小
+     */
+    formatDataSize: function(size) {
+        if (size === null || size === undefined) return '0 B';
 
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        let index = 0;
+
+        while (size >= 1024 && index < units.length - 1) {
+            size /= 1024;
+            index++;
+        }
+
+        return `${size.toFixed(2)} ${units[index]}`;
+    },
     /**
      * 获取状态码样式类
      * @param {number} status 状态码
@@ -390,6 +405,7 @@ const UIManager = {
         // 显示详情页面
         detailPage.style.display = 'block';
         detailPage.style.width = '100%';
+        detailPage.style.maxWidth = '100%';
         detailPage.style.opacity = '1';
         if(param?.id){
             LogListManager.viewLogDetails(param?.id)
@@ -399,7 +415,7 @@ const UIManager = {
         listPage.style.display = 'none';
     },
 
-    //默认页面各展示50%
+    //默认页面各展示
     defaultPage: function(param) {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
@@ -409,13 +425,14 @@ const UIManager = {
 
         // 显示首页
         listPage.style.display = 'block';
-        listPage.style.width = '50%';
+        listPage.style.width = '60%';
         listPage.style.opacity = '1';
 
         // 显示详情页面
         detailPage.style.display = 'block';
-        detailPage.style.width = '50%';
+        detailPage.style.width = '40%';
         detailPage.style.opacity = '1';
+        detailPage.style.maxWidth = '650px';
         page_mode.textContent = '双列模式';
     },
     //     跳转路由hash

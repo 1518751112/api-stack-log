@@ -1,6 +1,7 @@
-import express  from 'express';
-import initApiLogger  from '../index';
+import express from 'express';
+import initApiLogger from '../index';
 import {join} from "path";
+
 const app = express();
 
 async function start(){
@@ -12,6 +13,7 @@ async function start(){
         includeIdInHeader:true,
         maxDays:10, // 设置日志最大保存天数为10天
         cleanupInterval: 60, // 设置日志清理检测间隔为60分钟
+        cors:true // 允许跨域
     });
     // 示例路由
     app.get('/api', (req, res) => {

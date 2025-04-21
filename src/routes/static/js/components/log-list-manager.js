@@ -79,10 +79,11 @@ const LogListManager = /** @type {LogListManager} */ ({
 
         document.getElementById('table-empty').style.display = 'none';
 
-        logs.forEach(log => {
+        logs.forEach((log,index) => {
             const row = document.createElement('tr');
             row.className = 'log-row';
             row.innerHTML = `
+                <td>${index+1}</td>
                 <td class="view-btn" style="cursor: pointer;color:#005aef" title="${log.id}">${log.id}</td>
                 <td>${UIManager.formatDate(log.timestamp,true)}</td>
                 <td>
@@ -235,6 +236,8 @@ const LogListManager = /** @type {LogListManager} */ ({
             this.logId = id
             // 发起API请求
             const response = await fetch(ConfigManager.getApiUrl(`/info/${id}`));
+            //获取响应体大小
+            const contentLength = response.headers.get('Content-Length');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -272,6 +275,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             document.getElementById('detail-ip').textContent = logDetails.ip;
             document.getElementById('detail-responseTime').textContent = logDetails.responseTime.toFixed(2);
             document.getElementById('detail-path').textContent = logDetails.path;
+            document.getElementById('detail-size').textContent = UIManager.formatDataSize(Number(contentLength));
 
             // 填充选项卡内容，使用JSON格式化并高亮显示
             const formatAndDisplay = (elementId, content) => {

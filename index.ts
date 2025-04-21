@@ -4,6 +4,49 @@ import apiLoggerMiddleware from './src/middleware/apiLogger';
 import logRoutes, {setRoutePrefix} from './src/routes/log';
 import {initDatabase} from './src/db/logdb';
 
+type StaticOrigin = boolean | string | RegExp | (string | RegExp)[];
+export type CustomOrigin = (requestOrigin: string, callback: (err: Error | null, origin?: StaticOrigin) => void) => void;
+export interface CorsOptionsCallback {
+  (error: Error, options: CorsOptions): void;
+}
+export interface CorsOptionsDelegate<T> {
+  (req: T, cb: CorsOptionsCallback): void;
+}
+export interface CorsOptions {
+  /**
+   * Configures the `Access-Control-Allow-Origins` CORS header.  See [here for more detail.](https://github.com/expressjs/cors#configuration-options)
+   */
+  origin?: StaticOrigin | CustomOrigin;
+  /**
+   * Configures the Access-Control-Allow-Methods CORS header.
+   */
+  methods?: string | string[];
+  /**
+   * Configures the Access-Control-Allow-Headers CORS header.
+   */
+  allowedHeaders?: string | string[];
+  /**
+   * Configures the Access-Control-Expose-Headers CORS header.
+   */
+  exposedHeaders?: string | string[];
+  /**
+   * Configures the Access-Control-Allow-Credentials CORS header.
+   */
+  credentials?: boolean;
+  /**
+   * Configures the Access-Control-Max-Age CORS header.
+   */
+  maxAge?: number;
+  /**
+   * Whether to pass the CORS preflight response to the next handler.
+   */
+  preflightContinue?: boolean;
+  /**
+   * Provides a status code to use for successful OPTIONS requests.
+   */
+  optionsSuccessStatus?: number;
+}
+
 /**
  * 日志系统配置接口
  *
@@ -98,6 +141,11 @@ export interface ApiLoggerOptions {
    * 例如：['GET', 'POST']
    */
   filterRequestMethods?: string[];
+  /**
+   * 跨域配置
+   * nestjs 当外层设置的跨域配置无效时可以配置这个
+   */
+  cors?: boolean | CorsOptions | CorsOptionsDelegate<any>;
 }
 
 /**
@@ -153,7 +201,13 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       setRoutePrefix(config.routePrefix as string, config.uiService);
 
       // 注册日志查询路由
+      //配置跨域信息
+      if (config.cors) {
+        const cors = require('cors');
+        app.use(cors(options));
+      }
       app.use(config.routePrefix as string, logRoutes);
+
       console.log(`API Logger: 日志查询接口已注册在 ${config.routePrefix} 路径下`);
       // 启动定时清理任务
       if ((config.maxRecords ?? 0) > 0 || (config.maxDays ?? 0) > 0) {

@@ -29,6 +29,7 @@
   "author": "Tg浮云",
   "license": "MIT",
   "dependencies": {
+    "cors": "2.8.5",
     "express": ">=4.x",
     "sequelize": "^6.35.1",
     "sqlite3": "^5.1.6",
