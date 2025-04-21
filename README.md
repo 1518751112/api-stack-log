@@ -198,6 +198,12 @@ UI部分功能开发中
 - 支持日志对比功能❌
 - 支持左右分栏或单页显示切换✅
 
+## 界面截图
+<img alt="双列模式" src="https://github.com/1518751112/api-stack-log/raw/HEAD/image/1.png" onerror="this.onerror=null; this.src='./image/1.png';" style="max-width: 100%;"/>
+<img alt="单列模式" height="500" src="https://github.com/1518751112/api-stack-log/raw/HEAD/image/3.png" onerror="this.onerror=null; this.src='./image/3.png';" style="max-width: 100%;"/>
+<img alt="信息调用栈" height="200" src="https://github.com/1518751112/api-stack-log/raw/HEAD/image/4.png" onerror="this.onerror=null; this.src='./image/4.png';" style="max-width: 100%;"/>
+<img alt="日志详情" height="400" src="https://github.com/1518751112/api-stack-log/raw/HEAD/image/2.png" onerror="this.onerror=null; this.src='./image/2.png';" style="max-width: 100%;"/>
+
 ## 安装或初始化报错
 在 CentOS 系统中遇到 `/lib64/libstdc++.so.6: version 'CXXABI_1.3.8' not found` 错误，通常是因为 **系统自带的 `libstdc++.so.6` 版本过低**，无法满足某些依赖库（如 `sqlite3`）对 C++ ABI 的要求。以下是详细解决方案：
 备选方案：手动更新【这个操作简单也快】

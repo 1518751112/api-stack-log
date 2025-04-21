@@ -1,5 +1,5 @@
-import {Model, DataTypes, Optional, Sequelize} from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
+import {DataTypes, Model, Optional, Sequelize} from 'sequelize';
+import {v4 as uuidv4} from 'uuid';
 
 // 定义 API 日志属性接口
 export interface ApiLogAttributes {
@@ -66,7 +66,7 @@ const ApiLogInit = (sequelize:Sequelize)=>{
             ip: {
                 type: DataTypes.STRING,
                 allowNull: false,
-            }, 
+            },
             headers: {
                 type: DataTypes.TEXT,
                 allowNull: true,
@@ -75,7 +75,7 @@ const ApiLogInit = (sequelize:Sequelize)=>{
                 allowNull: true,
             },
             responseBody: {
-                type: DataTypes.TEXT,
+                type: DataTypes.TEXT("long"),
                 allowNull: true,
             },
             query: {
@@ -100,6 +100,9 @@ const ApiLogInit = (sequelize:Sequelize)=>{
             tableName: 'api_logs',
             timestamps: false,
             indexes: [
+                {
+                    fields: ['id'],
+                },
                 {
                     fields: ['path'],
                 },

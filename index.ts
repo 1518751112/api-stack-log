@@ -132,6 +132,10 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
   // 如果启用日志系统
   if (config.enabled) {
     try {
+      if(options.filterRequestMethods && options.filterRequestMethods.length > 0){
+        //全部大写
+        config.filterRequestMethods = options.filterRequestMethods.map(m=>m.toUpperCase());
+      }
       // 如果提供了自定义数据库路径，则重新初始化数据库连接
       let dbInstance = initDatabase(config.dbPath||'');
       // 重新初始化 ApiLog 模型与新的数据库连接

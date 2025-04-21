@@ -74,9 +74,9 @@ function serializeAndTruncate(data: any, maxLength: number = 10000): string | nu
     }
 
     // 如果超过最大长度，进行截断
-    if (serialized.length > maxLength) {
+    /*if (serialized.length > maxLength) {
       return serialized.substring(0, maxLength) + '... [截断]';
-    }
+    }*/
 
     return serialized;
   } catch (e) {
