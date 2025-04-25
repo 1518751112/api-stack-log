@@ -95,9 +95,6 @@ const LogListManager = /** @type {LogListManager} */ ({
                 </td>
                 <td>${log.responseTime.toFixed(2)}</td>
                 <td>${log.ip}</td>
-<!--                添加操作男女-->
-               
-              
             `;
 
             // 为整行添加点击事件监听器
@@ -109,6 +106,12 @@ const LogListManager = /** @type {LogListManager} */ ({
                     //从右边查看详情
                     this.viewLogDetails(log.id)
                 }
+                //取消已经选择的类
+                
+                document.querySelectorAll('.log-row.selected').forEach(selectedRow => {
+                    selectedRow.classList.remove("selected");
+                });
+                row.classList.add("selected");
             });
 
             tableBody.appendChild(row);

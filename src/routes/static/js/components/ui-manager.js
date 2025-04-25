@@ -377,7 +377,7 @@ const UIManager = {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const page_mode = document.getElementById('page_mode');
-
+        const resizer = document.getElementById('resize-handle');
         if (!listPage || !detailPage) return;
 
         // 显示首页
@@ -388,7 +388,7 @@ const UIManager = {
         // 隐藏详情页面
         detailPage.style.display = 'none';
         page_mode.textContent = '单列模式';
-
+        resizer.style.display = 'none';
     },
 
     /**
@@ -399,7 +399,7 @@ const UIManager = {
     openDetail: function(param) {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
-
+        const resizer = document.getElementById('resize-handle');
         if (!listPage || !detailPage) return;
 
         // 显示详情页面
@@ -413,6 +413,7 @@ const UIManager = {
 
         // 隐藏首页
         listPage.style.display = 'none';
+        resizer.style.display = 'none';
     },
 
     //默认页面各展示
@@ -420,19 +421,20 @@ const UIManager = {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const page_mode = document.getElementById('page_mode');
+        const resizer = document.getElementById('resize-handle');
+        if (!listPage || !detailPage||!resizer) return;
 
-        if (!listPage || !detailPage) return;
-
+        resizer.style.display = 'block';
         // 显示首页
         listPage.style.display = 'block';
-        listPage.style.width = '60%';
+        listPage.style.width = '59%';
         listPage.style.opacity = '1';
 
         // 显示详情页面
         detailPage.style.display = 'block';
-        detailPage.style.width = '40%';
+        detailPage.style.width = '39%';
         detailPage.style.opacity = '1';
-        detailPage.style.maxWidth = '650px';
+        // detailPage.style.maxWidth = '650px';
         page_mode.textContent = '双列模式';
     },
     //     跳转路由hash
@@ -463,5 +465,36 @@ const UIManager = {
         if (titleElement) {
             titleElement.textContent = title || '文档编辑器';
         }
+    },
+
+    /**
+     * 初始化拖动大小组件
+     * 可以拖动调整列表和详情页面的大小
+     */
+    initResizable: function() {
+        const listPage = document.getElementById('list-panel');
+        const detailPage = document.getElementById('detail-panel');
+        const resizer = document.getElementById('resize-handle');
+
+        if (!listPage || !detailPage || !resizer) return;
+
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            let newWidth = e.clientX - listPage.getBoundingClientRect().left;
+            listPage.style.width = `${newWidth}px`;
+            detailPage.style.width = `calc(100% - ${newWidth}px)`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+        });
     }
 }

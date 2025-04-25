@@ -19,7 +19,7 @@
 
 <div class="container-fluid mt-4">
     <!-- 主体左右分栏（美化样式） -->
-    <div class="row justify-content-center">
+    <div class="row justify-content-center" style="flex-wrap: nowrap;">
         <!-- 日志列表 -->
         <div class="col-lg-6 col-md-12 mb-4" id="list-panel">
             <div class="card mb-4">
@@ -160,6 +160,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <!-- 大小拖拉分隔线 -->
+        <div class="justify-content-center align-items-center" id="resize-handle" style="cursor: ew-resize;width: 1px;">
+            <div style="width: 1px; height: 100%; background-color: #e9ecef;"></div>
         </div>
         <!-- 日志详情和对比 -->
         <div class="col-lg-6 col-md-12" id="detail-panel">

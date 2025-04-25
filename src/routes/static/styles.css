@@ -34,11 +34,11 @@ body {
     min-height: 80vh;
   }
   #list-panel {
-    border-right: 1.5px solid #e9ecef;
-    padding-right: 24px;
+    /* border-right: 1.5px solid #e9ecef; */
+    padding-right: 1px;
   }
   #detail-panel {
-    padding-left: 24px;
+    padding-left: 1px;
   }
 }
 
@@ -220,7 +220,7 @@ body {
   display: none;
   max-height: 0;
   overflow: hidden;
-  transition: max-height var(--transition-speed), opacity var(--transition-speed);
+  transition: max-height var(--transition-speed), opacity var(--transition-speed),padding var(--transition-speed);
   opacity: 0;
 }
 
@@ -547,4 +547,9 @@ body {
 
 .table-responsive {
   overflow-x: auto;
+}
+
+/* 列表行选中改变背景颜色淡蓝色 */
+.table-logs tbody tr.selected {
+  background-color: rgba(67,175,238,0.31);
 }
