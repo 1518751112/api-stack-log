@@ -75,7 +75,7 @@ const ApiLogInit = (sequelize:Sequelize)=>{
                 allowNull: true,
             },
             responseBody: {
-                type: DataTypes.TEXT("long"),
+                type: DataTypes.TEXT,
                 allowNull: true,
             },
             query: {

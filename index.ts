@@ -191,8 +191,12 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
 
       // 同步数据库模型
       if (config.syncDatabase) {
-        await dbInstance.sync({alter: true});
-        console.log('API Logger: 数据库同步成功');
+        try {
+          await dbInstance.sync({alter: true});
+          console.log('API Logger: 数据库同步成功');
+        }catch (e) {
+            console.error('API Logger: 数据库同步失败', e);
+        }
       }      // 注册日志中间件
       app.use(apiLoggerMiddleware(config));
       console.log('API Logger: 日志中间件已注册');
