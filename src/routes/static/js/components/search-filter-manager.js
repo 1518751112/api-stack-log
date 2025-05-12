@@ -14,7 +14,7 @@ const SearchFilterManager = {
         document.getElementById('toggle-filter-btn').addEventListener('click', UIManager.toggleFilterPanel);
 
         // 注册搜索表单提交事件
-        document.getElementById('search-form').addEventListener('submit', this.handleSearch);
+        document.getElementById('search').addEventListener('click', this.handleSearch);
 
         // 注册重置按钮事件
         document.getElementById('reset-btn').addEventListener('click', this.resetSearch);
@@ -57,10 +57,10 @@ const SearchFilterManager = {
         LogListManager.loadLogs();
 
         // 隐藏筛选面板
-        const filterPanel = document.getElementById('filter-panel');
+        /*const filterPanel = document.getElementById('filter-panel');
         if (Object.keys(searchParams).length > 0 && filterPanel.style.display !== 'none') {
             UIManager.toggleFilterPanel();
-        }
+        }*/
     },
 
     /**

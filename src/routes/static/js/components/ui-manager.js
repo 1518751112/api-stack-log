@@ -13,23 +13,25 @@ const UIManager = {
 
         if (panel.classList.contains('show')) {
             // 隐藏面板动画
-            panel.style.maxHeight = `${panel.scrollHeight}px`; // 设置当前高度
+            panel.style.maxHeight = `${0}px`; // 设置当前高度
             setTimeout(() => {
                 panel.style.maxHeight = '0';
                 panel.style.opacity = '0';
             }, 10);
             toggleBtn.innerHTML = '<i class="bi bi-funnel"></i> 筛选';
             panel.classList.remove('show');
+            panel.style.padding = '0px';
         } else {
             // 显示面板动画
             panel.style.maxHeight = '0'; // 确保从 0 开始
             panel.style.display = 'block';
             setTimeout(() => {
-                panel.style.maxHeight = `${panel.scrollHeight}px`;
+                panel.style.maxHeight = `${panel.scrollHeight+20}px`;
                 panel.style.opacity = '1';
             }, 10);
             toggleBtn.innerHTML = '<i class="bi bi-funnel-fill"></i> 隐藏筛选';
             panel.classList.add('show');
+            panel.style.padding = '20px';
         }
     },
 
@@ -489,7 +491,7 @@ const UIManager = {
             if (!isResizing) return;
             let newWidth = e.clientX - listPage.getBoundingClientRect().left;
             listPage.style.width = `${newWidth}px`;
-            detailPage.style.width = `calc(100% - ${newWidth}px)`;
+            detailPage.style.width = `calc(100% - ${newWidth}px - 26px)`;
         });
 
         document.addEventListener('mouseup', () => {

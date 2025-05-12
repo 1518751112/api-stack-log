@@ -459,6 +459,10 @@ body {
   font-size: 0.85rem;
 }
 
+.dine {
+  padding: 15px;
+}
+
 /* JSON高亮 */
 .json-key { color: #f9c74f; }
 .json-string { color: #4cc9f0; }

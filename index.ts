@@ -192,7 +192,7 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       // 同步数据库模型
       if (config.syncDatabase) {
         try {
-          await dbInstance.sync({alter: true});
+          await dbInstance.sync();
           console.log('API Logger: 数据库同步成功');
         }catch (e) {
             console.error('API Logger: 数据库同步失败', e);
