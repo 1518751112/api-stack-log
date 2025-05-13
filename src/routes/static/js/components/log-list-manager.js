@@ -107,7 +107,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                     this.viewLogDetails(log.id)
                 }
                 //取消已经选择的类
-                
+
                 document.querySelectorAll('.log-row.selected').forEach(selectedRow => {
                     selectedRow.classList.remove("selected");
                 });
@@ -266,6 +266,14 @@ const LogListManager = /** @type {LogListManager} */ ({
                     UIManager.showAlert('复制失败，请重试', 'danger');
                 });
             });
+            const reissueButton = document.getElementById('reissue');
+            const newReissueButton = reissueButton.cloneNode(true);
+            // 先移除已有的事件监听器，防止重复添加
+            reissueButton.replaceWith(newReissueButton);
+
+            newReissueButton.addEventListener('click', () => {
+                this.resendRequest(logDetails);
+            });
             // 获取方法的样式类
             const methodClass = UIManager.getMethodClass(logDetails.method);
             document.getElementById('detail-method').innerHTML = `<span class="badge ${methodClass}">${logDetails.method}</span>`;
@@ -339,5 +347,78 @@ const LogListManager = /** @type {LogListManager} */ ({
                 page_mode.textContent = "单列模式"
             }
         })
+
+        const pre_url = document.getElementById('set-pre-url');
+        pre_url.addEventListener('click', ()=>{
+            this.setPreUrl(localStorage.getItem('preUrl'))
+        })
+    },
+
+    /**
+     * 重发请求
+     * @param  logDetails 日志详情对象
+     */
+    resendRequest: async function(logDetails) {
+        UIManager.showAlert('重发中', 'info');
+        const preUrl = this.getPreUrl();
+        if (!preUrl) {
+            return;
+        }
+
+        let url = `${preUrl}${logDetails.path}`;
+        const method = logDetails.method;
+        const headers = logDetails.headers;
+        const body = logDetails.requestBody;
+        const query = logDetails.query;
+        const requestData = {
+            url: url,
+            method: method,
+            headers: JSON.parse(headers),
+            body: body,
+        };
+        if(query){
+            // 构建查询参数
+            const queryParams = SearchFilterManager.buildQueryParams(JSON.parse(query));
+
+            // 发起API请求
+            url = `${url}?${queryParams}`
+        }
+        // 发送请求
+        const response = await fetch(url, requestData)
+
+        if (!response.ok) {
+            UIManager.showAlert('重发请求失败', 'danger');
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }else{
+            UIManager.showAlert('重发请求成功,页面已刷新', 'success');
+            // 重新加载日志列表
+            this.loadLogs();
+        }
+        console.log("重发信息",response)
+
+    },
+    //获取重发请求前置url
+    getPreUrl: function() {
+        //从存储中获取
+        const preUrl = localStorage.getItem('preUrl');
+        if (preUrl) {
+            return preUrl;
+        } else {
+            return this.setPreUrl();
+        }
+    },
+    //设置重发请求前置url
+    setPreUrl: function(url) {
+        // 如果没有存储就弹出输入框输入存储
+        const inputUrl = prompt('请输入重发请求的前置URL', url);
+        if (inputUrl) {
+            // 存储到localStorage
+            localStorage.setItem('preUrl', inputUrl);
+            return inputUrl;
+        } else {
+            const preUrl = localStorage.getItem('preUrl')
+            if(!preUrl)UIManager.showAlert('请先设置重发请求的前置URL', 'warning');
+            return null;
+        }
     }
 });

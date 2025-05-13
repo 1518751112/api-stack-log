@@ -146,7 +146,7 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
       id: uuidv4(),
       method: req.method,
       path: req.path,
-      ip: (req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress as string) || (req.headers['x-real-ip'] as string) || req.ip || '',
+      ip: (req.headers['x-real-ip'] as string) || (req.headers['http_x_forwarded_for'] as string) || (req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress as string) || req.ip || '',
       headers: serializeAndTruncate(req.headers),
       query: serializeAndTruncate(req.query),
       params: serializeAndTruncate(req.params),

@@ -6,7 +6,7 @@
 const ConfigManager = {
     // 配置
     config: {
-        "apiBasePath": '', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
+        "apiBasePath": 'https://s2d.orbitsoft.cn/202p', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
         pageSize: 20,    // 每页显示的记录数
         path: 'api-logs' // API日志路径
     },
