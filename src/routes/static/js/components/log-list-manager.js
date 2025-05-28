@@ -328,6 +328,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                 const element = document.getElementById(elementId);
                 if(!content){
                     element.textContent = '无数据';
+                    UIManager.addCopyButton(elementId,''); // 添加复制按钮
                     return
                 }
                 let obj;
@@ -335,10 +336,9 @@ const LogListManager = /** @type {LogListManager} */ ({
                 try {
                     obj = JSON.parse(content)
                 }catch (e) {
-                    element.textContent = content;
-                    return;
+                    obj = content
                 }
-                if(Array.isArray(obj)){
+                if(obj == null || typeof obj != 'object' || Array.isArray(obj)){
                     element.innerHTML = UIManager.formatAndHighlightJson(content);
                 }else{
                     try {
