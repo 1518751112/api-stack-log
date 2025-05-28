@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 初始化步骤 2: 初始化日志列表
         LogListManager.init();
-        
+
         UIManager.initResizable();
 
         // 应用加载完成

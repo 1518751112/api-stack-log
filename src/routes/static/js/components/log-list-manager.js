@@ -2,6 +2,41 @@
  * 日志列表管理器组件
  * 负责处理日志列表显示和分页功能
  */
+
+const style = {
+    '--w-rjv-font-family': 'monospace',
+    '--w-rjv-color': '#89ca78',
+    '--w-rjv-key-string': '#f9c74f',
+    '--w-rjv-background-color': '#272822',
+    '--w-rjv-line-color': '#3e3d32',
+    '--w-rjv-arrow-color': '#f8f8f2',
+    '--w-rjv-edit-color': 'var(--w-rjv-color)',
+    '--w-rjv-info-color': '#cecece4d',
+    '--w-rjv-update-color': '#5f5600',
+    '--w-rjv-copied-color': '#E6DB74',
+    '--w-rjv-copied-success-color': '#28a745',
+
+    '--w-rjv-curlybraces-color': '#f8f8f2',
+    '--w-rjv-colon-color': '#f8f8f2',
+    '--w-rjv-brackets-color': '#f8f8f2',
+    '--w-rjv-quotes-color': 'var(--w-rjv-key-string)',
+    '--w-rjv-quotes-string-color': 'var(--w-rjv-type-string-color)',
+
+    '--w-rjv-type-string-color': '#4cc9f0',
+    '--w-rjv-type-int-color': '#8e4fff',
+    '--w-rjv-type-float-color': '#8e4fff',
+    '--w-rjv-type-bigint-color': '#8e4fff',
+    '--w-rjv-type-boolean-color': '#dc13da',
+    '--w-rjv-type-date-color': '#fd9720c7',
+    '--w-rjv-type-url-color': '#55a3ff',
+    '--w-rjv-type-null-color': '#adb5bd',
+    '--w-rjv-type-nan-color': '#FD971F',
+    '--w-rjv-type-undefined-color': '#FD971F',
+    'font-size': '0.98rem',
+    'font-family': 'var(--bs-font-monospace)',
+    'background-color': '#23272e',
+}
+
 /**
  * @typedef {Object} LogListManager
  * @property {function(number): void} goToPage - 跳转到指定页
@@ -291,12 +326,47 @@ const LogListManager = /** @type {LogListManager} */ ({
             // 填充选项卡内容，使用JSON格式化并高亮显示
             const formatAndDisplay = (elementId, content) => {
                 const element = document.getElementById(elementId);
-                try {
-                    element.innerHTML = UIManager.formatAndHighlightJson(content || '无数据');
-                    UIManager.addCopyButton(elementId); // 添加复制按钮
-                } catch (e) {
-                    element.textContent = content || '无数据';
+                if(!content){
+                    element.textContent = '无数据';
+                    return
                 }
+                let obj;
+
+                try {
+                    obj = JSON.parse(content)
+                }catch (e) {
+                    element.textContent = content;
+                    return;
+                }
+                if(Array.isArray(obj)){
+                    element.innerHTML = UIManager.formatAndHighlightJson(content);
+                }else{
+                    try {
+                        const {default:JsonView} = window['react-json-view'];
+                        //计算字符串长度超过200kb就折叠
+                        let collapsed = false
+                        if(content.length>200000){
+                            obj = JSON.parse(content);
+                            collapsed = 1;
+                        }
+                        ReactDOM.render(
+                            React.createElement(JsonView, { value: obj,style:style,
+                                collapsed,          // 控制是否折叠所有节点（默认展开）[1,3](@ref)
+                                indentWidth: 6,            // 缩进宽度，单位字符[1,4](@ref)
+                                enableClipboard: true,     // 启用复制功能[1,6](@ref)
+                                displayDataTypes: false,    // 隐藏数据类型前缀[1,4](@ref)
+                                shortenTextAfterLength:0
+                            }),
+                            element
+                        );
+                    }catch (e) {
+                        element.textContent = content;
+                    }
+                }
+
+                UIManager.addCopyButton(elementId,content); // 添加复制按钮
+
+
             };
 
             formatAndDisplay('detail-query', logDetails.query);
@@ -305,10 +375,6 @@ const LogListManager = /** @type {LogListManager} */ ({
             formatAndDisplay('detail-responseBody', logDetails.responseBody);
             formatAndDisplay('detail-stack', logDetails.stack);
 
-            // TODO 当前有问题 格式化栈轨迹并添加折叠功能
-            // const stackElement = document.getElementById('detail-stack');
-            // stackElement.innerHTML = UIManager.formatStackTrace(logDetails.stack);
-            // UIManager.addCopyButton('detail-stack'); // 添加复制按钮
 
         } catch (error) {
             console.error('加载日志详情失败:', error);
@@ -359,11 +425,11 @@ const LogListManager = /** @type {LogListManager} */ ({
      * @param  logDetails 日志详情对象
      */
     resendRequest: async function(logDetails) {
-        UIManager.showAlert('重发中', 'info');
         const preUrl = this.getPreUrl();
         if (!preUrl) {
             return;
         }
+        UIManager.showAlert('重发中', 'info');
 
         let url = `${preUrl}${logDetails.path}`;
         const method = logDetails.method;
@@ -411,13 +477,13 @@ const LogListManager = /** @type {LogListManager} */ ({
     setPreUrl: function(url) {
         // 如果没有存储就弹出输入框输入存储
         const inputUrl = prompt('请输入重发请求的前置URL', url);
+        if(inputUrl==null)return
+        localStorage.setItem('preUrl', inputUrl);
         if (inputUrl) {
             // 存储到localStorage
-            localStorage.setItem('preUrl', inputUrl);
             return inputUrl;
         } else {
-            const preUrl = localStorage.getItem('preUrl')
-            if(!preUrl)UIManager.showAlert('请先设置重发请求的前置URL', 'warning');
+            UIManager.showAlert('请先设置重发请求的前置URL', 'warning');
             return null;
         }
     }

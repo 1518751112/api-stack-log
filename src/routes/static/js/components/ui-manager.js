@@ -301,13 +301,18 @@ const UIManager = {
     /**
      * 添加复制按钮到代码块
      * @param {string} elementId 代码块元素ID
+     * @param {string} content 内容
      */
-    addCopyButton: function(elementId) {
+    addCopyButton: function(elementId,content) {
         const codeBlock = document.getElementById(elementId);
         if (!codeBlock) return;
 
         // 检查是否已经添加了复制按钮
-        if (codeBlock.parentNode.querySelector('.copy-btn')) return;
+        if (codeBlock.parentNode.querySelector('.copy-btn')){
+            //添加了就删除
+            const existingBtn = codeBlock.parentNode.querySelector('.copy-btn');
+            existingBtn.remove();
+        }
 
         // 创建按钮元素
         const copyBtn = document.createElement('button');
@@ -325,7 +330,7 @@ const UIManager = {
 
         // 添加点击事件
         copyBtn.addEventListener('click', () => {
-            const textToCopy = codeBlock.textContent || '';
+            const textToCopy = content || '';
 
             navigator.clipboard.writeText(textToCopy)
                 .then(() => {
@@ -491,7 +496,7 @@ const UIManager = {
             if (!isResizing) return;
             let newWidth = e.clientX - listPage.getBoundingClientRect().left;
             listPage.style.width = `${newWidth}px`;
-            detailPage.style.width = `calc(100% - ${newWidth}px - 26px)`;
+            detailPage.style.width = `calc(100% - ${newWidth}px - 24px)`;
         });
 
         document.addEventListener('mouseup', () => {
