@@ -3,6 +3,7 @@ import ApiLog from '../db/ApiLog';
 import {v4 as uuidv4} from 'uuid';
 import cleanStack from '../clean-stack';
 import {ApiLoggerOptions} from "../../index";
+import {getIp} from "../utils/crypt.util";
 
 const diyKey = {
     requestId: '__requestId',
@@ -146,7 +147,7 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
       id: uuidv4(),
       method: req.method,
       path: req.path,
-      ip: (req.headers['x-real-ip'] as string) || (req.headers['http_x_forwarded_for'] as string) || (req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress as string) || req.ip || '',
+      ip: getIp(req),
       headers: serializeAndTruncate(req.headers),
       query: serializeAndTruncate(req.query),
       params: serializeAndTruncate(req.params),

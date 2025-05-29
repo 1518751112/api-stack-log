@@ -3,6 +3,8 @@ import {Op} from 'sequelize';
 import ApiLog from '../db/ApiLog';
 import path from 'path';
 import fs from 'fs';
+import {AuthOptions} from "../../index";
+import {getIp, jwtEncodeInExpire} from "../utils/crypt.util";
 
 // let routePrefix = '/api-logs'; // 默认路由前缀
 
@@ -222,4 +224,31 @@ router.get('/stats/summary', async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+
+const getRouter = (auth?:AuthOptions) => {
+  if(auth){
+    /**
+     * 登录
+     */
+    router.post('/login', async (req: Request, res: Response) => {
+
+      const { password } = req.body;
+
+      // 简单的用户名和密码验证
+      if (password === auth.password) {
+        // 模拟生成一个token
+        const ip = getIp(req).replace(/::ffff:/, '')
+        const token = jwtEncodeInExpire({ip}, auth.secret, auth.exp||360000);
+        // console.log(`登录成功，IP: ${ip}, Token: ${token}`);
+        res.json({ token });
+      } else {
+        res.status(400).json({ error: '无效的密码' });
+      }
+    })
+  }
+
+  return router
+}
+router.use(express.json()); // 解析 JSON 格式的请求体
+router.use(express.urlencoded({ extended: true })); // 解析 URL 编码的请求体
+export default getRouter;

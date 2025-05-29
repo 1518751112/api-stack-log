@@ -60,6 +60,32 @@ const LogListManager = /** @type {LogListManager} */ ({
     },*/
 
     /**
+     * 发送fetch请求
+     * @param {string} url
+     * @param options
+     * @returns {Promise<Response>}
+     */
+    fetch: async function(url, options = {}) {
+        // 添加认证头
+        const token = this.getToken();
+        if (token) {
+            options.headers = (options.headers||{})
+            options.headers['Authorization'] = `Bearer ${token}`
+        }
+        const result = await fetch(url, options);
+        if(result.status===401){
+            // 如果未授权，提示登录
+            UIManager.showAlert('请先登录', 'warning');
+            this.login();
+            return {
+                ok: false,
+                status: 401,
+                json: async () => ({ message: '未授权，请登录' })
+            };
+        }
+        return result
+    },
+    /**
      * 加载日志列表数据
      */
     loadLogs: async function() {
@@ -72,7 +98,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             });
 
             // 发起API请求
-            const response = await fetch(`${ConfigManager.getApiUrl('/')}?${queryParams}`);
+            const response = await this.fetch(`${ConfigManager.getApiUrl('/')}?${queryParams}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -98,6 +124,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         } finally {
         }
     },
+
 
     /**
      * 渲染日志列表
@@ -273,7 +300,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             if(id==this.logId)return
             this.logId = id
             // 发起API请求
-            const response = await fetch(ConfigManager.getApiUrl(`/info/${id}`));
+            const response = await this.fetch(ConfigManager.getApiUrl(`/info/${id}`));
             //获取响应体大小
             const contentLength = response.headers.get('Content-Length');
 
@@ -418,6 +445,50 @@ const LogListManager = /** @type {LogListManager} */ ({
         pre_url.addEventListener('click', ()=>{
             this.setPreUrl(localStorage.getItem('preUrl'))
         })
+    },
+    //登陆
+    login:async function (){
+        //弹窗输入密码
+        const password = prompt('请输入密码');
+        if (!password) {
+            UIManager.showAlert('密码不能为空', 'warning');
+            return;
+        }
+        try {
+            const response = await fetch(ConfigManager.getApiUrl('/login'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': '*/*'
+                },
+                body: JSON.stringify({ password })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            if (result.token) {
+                UIManager.showAlert('登录成功', 'success');
+                // 保存token到localStorage
+                this.setToken(result.token)
+                // 登录成功后可以执行其他操作，刷新日志列表
+                this.loadLogs();
+            } else {
+                UIManager.showAlert(result.message || '登录失败，请重试', 'danger');
+            }
+        } catch (error) {
+            console.error('登录失败:', error);
+            UIManager.showAlert('登录失败，请重试', 'danger');
+        }
+    },
+    setToken: function (token){
+        localStorage.setItem('api_log_token', token);
+    },
+    getToken: function () {
+        // 从localStorage中获取token
+        return localStorage.getItem('api_log_token');
     },
 
     /**

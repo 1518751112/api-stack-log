@@ -16,6 +16,7 @@ API Stack Log provides comprehensive API request logging functionality for your 
 - Automatic log cleanup by count or days✅
 - Support for direct access to log details via URL✅
 - Support for request replay through logs✅
+- Access UI documentation authorization to protect the security of log data✅
 - Detailed log statistics❌ (API available but UI not yet implemented)
 
 ## Installation
@@ -33,7 +34,13 @@ import initApiLogger from 'api-stack-log';
 const app = express();
 
 // Initialize the API logging system before all routes
-await initApiLogger(app,{cors:true});
+await initApiLogger(app,{
+    cors:true,
+    auth:{
+        password: '123',
+        exp:360000, // Token expiration time in seconds
+        secret:"122dfg%f"
+    }});
 
 // Your other routes and middleware...
 app.get('/api/example', (req, res) => {

@@ -3,6 +3,7 @@ import ApiLog, {ApiLogInit} from './src/db/ApiLog';
 import apiLoggerMiddleware from './src/middleware/apiLogger';
 import logRoutes, {setRoutePrefix} from './src/routes/log';
 import {initDatabase} from './src/db/logdb';
+import guard from "./src/lib/guard";
 
 type StaticOrigin = boolean | string | RegExp | (string | RegExp)[];
 export type CustomOrigin = (requestOrigin: string, callback: (err: Error | null, origin?: StaticOrigin) => void) => void;
@@ -45,6 +46,22 @@ export interface CorsOptions {
    * Provides a status code to use for successful OPTIONS requests.
    */
   optionsSuccessStatus?: number;
+}
+export interface AuthOptions {
+  /**
+   * 密码
+   */
+  password: string;
+
+  /**
+   * 登录后会话有效期，单位为秒，默认 3600 秒（1 小时）
+   */
+  exp?: number;
+
+  /**
+   * 加密密钥
+   */
+  secret: string;
 }
 
 /**
@@ -146,6 +163,10 @@ export interface ApiLoggerOptions {
    * nestjs 当外层设置的跨域配置无效时可以配置这个
    */
   cors?: boolean | CorsOptions | CorsOptionsDelegate<any>;
+  /**
+   * 访问UI文档鉴权 为了保护日志数据的安全性，可以设置一个UI文档密码
+   */
+  auth?: AuthOptions;
 }
 
 /**
@@ -210,7 +231,12 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
         const cors = require('cors');
         app.use(cors(options));
       }
-      app.use(config.routePrefix as string, logRoutes);
+      //添加全局守卫
+        if (config.auth) {
+            app.use(guard(config));
+        }
+
+      app.use(config.routePrefix as string, logRoutes(config.auth));
 
       console.log(`API Logger: 日志查询接口已注册在 ${config.routePrefix} 路径下`);
       // 启动定时清理任务

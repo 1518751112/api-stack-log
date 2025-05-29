@@ -8,12 +8,16 @@ async function start(){
     await initApiLogger(app, {
         routePrefix: '/api-logs',
         dbPath: join(__dirname,'doc/logs.sqlite'),
-        whitelistPaths:[/^\/doc/],
+        whitelistPaths:[/^\/doc/,'/favicon.ico',/^\/.well-known/],
         logStackTrace:true,
         includeIdInHeader:true,
         maxDays:10, // 设置日志最大保存天数为10天
         cleanupInterval: 60, // 设置日志清理检测间隔为60分钟
-        cors:true // 允许跨域
+        cors:true, // 允许跨域
+        auth:{
+            password: '123',
+            secret:"122dfg%f"
+        }
     });
     // 示例路由
     app.get('/api', (req, res) => {
@@ -36,6 +40,7 @@ async function start(){
 
     app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
+        console.log(`[api_log_UI]`, `http://127.0.0.1:3000/api-logs/ui/#`)
     });
 }
 start()
