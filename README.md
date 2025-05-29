@@ -1,5 +1,7 @@
 # API Stack Log [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
+<div align="center">中文 | <a href="./README_en.md">English</a></div>
+
 > 一个强大的 API 日志记录、查询和可视化系统，适用于 Express/NestJS 应用
 
 API Stack Log 为你的应用提供全面的 API 请求日志记录功能，包括请求/响应详情、执行时间、调用栈等，并提供美观的 UI 界面进行查询、筛选和分析。
@@ -129,19 +131,39 @@ app.use((req, res, next) => {
 在 NestJS 应用中，你可以创建一个模块来集成 API 日志系统：
 
 ```typescript
-// api-logger.module.ts
-import { Module, OnModuleInit } from '@nestjs/common';
-import { INestApplication } from '@nestjs/common';
+// main.ts
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module'
+import { join } from 'path'
 import initApiLogger from 'api-stack-log';
 
-@Module({})
-export class ApiLoggerModule implements OnModuleInit {
-  constructor(private readonly app: INestApplication) {}
+async function bootstrap() {
+   const app = await NestFactory.create(AppModule, { cors: true })
 
-  async onModuleInit() {
-    await initApiLogger(this.app.getHttpAdapter().getInstance());
-  }
+   const expressApp = app.getHttpAdapter().getInstance();
+
+   const port = 8000;
+   const config = {
+      routePrefix: '/api-logs',
+      dbPath: join(__dirname,'doc/logs.sqlite'),
+      whitelistPaths:[/^\/doc/],
+      logStackTrace:true,
+      includeIdInHeader:true,
+      maxDays:10,
+      cleanupInterval: 60,
+      cors:true
+   }
+   // Initialize the API logging system before all routes
+   await initApiLogger(expressApp, config);
+
+   setTimeout(()=>{
+      console.log(`[api_log_UI]`, `http://127.0.0.1:${port}${config.routePrefix}/ui/#`)
+   },300)
+
+   await app.listen(port)
 }
+bootstrap()
+
 ```
 
 ## API 说明

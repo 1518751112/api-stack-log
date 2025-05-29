@@ -110,6 +110,12 @@ const ApiLogInit = (sequelize:Sequelize)=>{
                     fields: ['method'],
                 },
                 {
+                    fields: ['status'],
+                },
+                {
+                    fields: ['ip'],
+                },
+                {
                     fields: ['timestamp'],
                 },
             ],
