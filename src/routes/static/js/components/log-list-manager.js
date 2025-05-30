@@ -368,6 +368,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                 if(obj == null || typeof obj != 'object' || Array.isArray(obj)){
                     element.innerHTML = UIManager.formatAndHighlightJson(content);
                 }else{
+
                     try {
                         const {default:JsonView} = window['react-json-view'];
                         //计算字符串长度超过200kb就折叠
@@ -376,16 +377,31 @@ const LogListManager = /** @type {LogListManager} */ ({
                             obj = JSON.parse(content);
                             collapsed = 1;
                         }
-                        ReactDOM.render(
-                            React.createElement(JsonView, { value: obj,style:style,
-                                collapsed,          // 控制是否折叠所有节点（默认展开）[1,3](@ref)
-                                indentWidth: 6,            // 缩进宽度，单位字符[1,4](@ref)
-                                enableClipboard: true,     // 启用复制功能[1,6](@ref)
-                                displayDataTypes: false,    // 隐藏数据类型前缀[1,4](@ref)
-                                shortenTextAfterLength:0
-                            }),
-                            element
-                        );
+                        const options = {
+                            key: Date.now(),
+                            value: obj,style:style,
+                            collapsed,          // 控制是否折叠所有节点（默认展开）[1,3](@ref)
+                            indentWidth: 6,            // 缩进宽度，单位字符[1,4](@ref)
+                            enableClipboard: true,     // 启用复制功能[1,6](@ref)
+                            displayDataTypes: false,    // 隐藏数据类型前缀[1,4](@ref)
+                            shortenTextAfterLength:0
+                        }
+                        try {
+                            ReactDOM.render(
+                                React.createElement(JsonView, options),
+                                element
+                            );
+                        }catch (e) {
+                            if(e.message.includes('removeChild')){
+                                ReactDOM.render(
+                                    React.createElement(JsonView, options),
+                                    element
+                                );
+                            }else{
+                                throw e;
+                            }
+                        }
+
                     }catch (e) {
                         element.textContent = content;
                     }
