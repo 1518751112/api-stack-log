@@ -366,7 +366,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                     obj = content
                 }
                 if(obj == null || typeof obj != 'object' || Array.isArray(obj)){
-                    element.innerHTML = UIManager.formatAndHighlightJson(content);
+                    UIManager.formatAndHighlightJson(content,element);
                 }else{
 
                     try {

@@ -7,7 +7,7 @@ const UIManager = {
     /**
      * 显示或隐藏筛选面板
      */
-    toggleFilterPanel: function() {
+    toggleFilterPanel: function () {
         const panel = document.getElementById('filter-panel');
         const toggleBtn = document.getElementById('toggle-filter-btn');
 
@@ -26,7 +26,7 @@ const UIManager = {
             panel.style.maxHeight = '0'; // 确保从 0 开始
             panel.style.display = 'block';
             setTimeout(() => {
-                panel.style.maxHeight = `${panel.scrollHeight+20}px`;
+                panel.style.maxHeight = `${panel.scrollHeight + 20}px`;
                 panel.style.opacity = '1';
             }, 10);
             toggleBtn.innerHTML = '<i class="bi bi-funnel-fill"></i> 隐藏筛选';
@@ -39,7 +39,7 @@ const UIManager = {
      * 切换到详情页面
      * @param {Element} detailPage 详情页面元素
      */
-    showDetailPage: function(detailPage) {
+    showDetailPage: function (detailPage) {
 
         // 确保参数有效
         if (!detailPage) detailPage = document.getElementById('detail-page');
@@ -63,7 +63,7 @@ const UIManager = {
     /**
      * 返回列表页面
      */
-    backToList: function() {
+    backToList: function () {
         const detailPage = document.getElementById('detail-panel');
         const listPage = document.getElementById('list-panel');
 
@@ -89,7 +89,7 @@ const UIManager = {
      * @param {string} type 消息类型 (success, warning, danger, info)
      * @param {number} duration 显示时长(毫秒)
      */
-    showAlert: function(message, type = 'info', duration = 3000) {
+    showAlert: function (message, type = 'info', duration = 3000) {
         const alertContainer = document.getElementById('alert-container');
         if (!alertContainer) {
             console.error('找不到alert-container元素');
@@ -141,7 +141,7 @@ const UIManager = {
      * @param {boolean} showSeconds 是否显示秒数
      * @returns {string} 格式化后的日期字符串
      */
-    formatDate: function(dateString, showSeconds = false) {
+    formatDate: function (dateString, showSeconds = false) {
         if (!dateString) return '';
 
         const date = new Date(dateString);
@@ -163,7 +163,7 @@ const UIManager = {
     /**
      * 计算数据大小
      */
-    formatDataSize: function(size) {
+    formatDataSize: function (size) {
         if (size === null || size === undefined) return '0 B';
 
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -181,7 +181,7 @@ const UIManager = {
      * @param {number} status 状态码
      * @returns {string} 样式类名
      */
-    getStatusClass: function(status) {
+    getStatusClass: function (status) {
         if (!status) return '';
 
         const statusCode = Number(status);
@@ -189,11 +189,16 @@ const UIManager = {
 
         const statusClass = Math.floor(statusCode / 100);
         switch (statusClass) {
-            case 2: return 'status-2xx'; // 成功
-            case 3: return 'status-3xx'; // 重定向
-            case 4: return 'status-4xx'; // 客户端错误
-            case 5: return 'status-5xx'; // 服务器错误
-            default: return '';
+            case 2:
+                return 'status-2xx'; // 成功
+            case 3:
+                return 'status-3xx'; // 重定向
+            case 4:
+                return 'status-4xx'; // 客户端错误
+            case 5:
+                return 'status-5xx'; // 服务器错误
+            default:
+                return '';
         }
     },
 
@@ -202,7 +207,7 @@ const UIManager = {
      * @param {string} method HTTP方法
      * @returns {string} 样式类名
      */
-    getMethodClass: function(method) {
+    getMethodClass: function (method) {
         if (!method) return 'bg-secondary';
 
         const methodClasses = {
@@ -221,39 +226,82 @@ const UIManager = {
     /**
      * 格式化和高亮JSON代码
      * @param {string} jsonString JSON字符串
+     * @param {any} element 元素标签
      * @returns {string} 格式化并高亮的HTML
      */
-    formatAndHighlightJson: function(jsonString) {
+    formatAndHighlightJson: function (jsonString, element) {
         if (!jsonString) return '';
-
         try {
             // 尝试解析和格式化JSON
             const parsedJson = typeof jsonString === 'object' ? jsonString : JSON.parse(jsonString);
             const formattedJson = JSON.stringify(parsedJson, null, 2);
+            const key = Date.now();
+            const regex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g;
 
-            // 简单的语法高亮
-            return formattedJson
-                .replace(/&/g, '&amp;')
+            const lines = formattedJson.replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
-                .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
-                    let cls = 'json-number'; // 数字
-                    if (/^"/.test(match)) {
-                        if (/:$/.test(match)) {
-                            cls = 'json-key'; // 键
-                        } else {
-                            cls = 'json-string'; // 字符串
+                .split('\n');
+
+            let maxInitialSize = 200 * 1024; // 限制首次渲染大小为200kb
+            let renderedSize = 0;
+
+            const renderChunk = (start, element, isInitial) => {
+                if (element._stopRendering !== key) return; // 检查是否需要停止渲染
+                const chunkSize = 100; // 每次渲染50行
+                const end = Math.min(start + chunkSize, lines.length);
+                let chunkHtml = document.createDocumentFragment();
+                for (let i = start; i < end; i++) {
+                    const lineSize = lines[i].length;
+                    /*if (isInitial && renderedSize + lineSize > maxInitialSize) {
+                        break;
+                    }*/
+                    renderedSize += lineSize;
+                    const span = document.createElement('span');
+                    span.innerHTML = lines[i].replace(regex, function (match) {
+                        let cls = 'json-number'; // 数字
+                        if (/^"/.test(match)) {
+                            if (/:$/.test(match)) {
+                                cls = 'json-key'; // 键
+                            } else {
+                                cls = 'json-string'; // 字符串
+                            }
+                        } else if (/true|false/.test(match)) {
+                            cls = 'json-boolean'; // 布尔值
+                        } else if (/null/.test(match)) {
+                            cls = 'json-null'; // null
                         }
-                    } else if (/true|false/.test(match)) {
-                        cls = 'json-boolean'; // 布尔值
-                    } else if (/null/.test(match)) {
-                        cls = 'json-null'; // null
+                        return '<span class="' + cls + '">' + match + '</span>';
+                    }) + '\n';
+                    chunkHtml.appendChild(span);
+                }
+                element.appendChild(chunkHtml);
+
+                if (end < lines.length) {
+                    if (isInitial && renderedSize >= maxInitialSize) {
+                        // 添加“显示更多”按钮
+                        const showMoreBtn = document.createElement('button');
+                        showMoreBtn.className = 'btn btn-sm btn-link';
+                        showMoreBtn.textContent = '显示更多';
+                        showMoreBtn.addEventListener('click', () => {
+                            showMoreBtn.remove();
+                            maxInitialSize+=maxInitialSize;
+                            renderChunk(end, element, true);
+                        });
+                        element.appendChild(showMoreBtn);
+                        console.log("创建按钮")
+                    } else {
+                        requestAnimationFrame(() => renderChunk(end, element, isInitial));
                     }
-                    return '<span class="' + cls + '">' + match + '</span>';
-                });
+                }
+            };
+
+            element.innerHTML = ''; // 清空元素内容
+            element._stopRendering = key; // 重置停止标志
+            renderChunk(0, element, true);
         } catch (e) {
             // 如果解析JSON失败，至少确保转义HTML字符
-            return String(jsonString)
+            element.innerHTML = String(jsonString)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
@@ -265,7 +313,7 @@ const UIManager = {
      * @param {string} stackTrace 栈轨迹字符串
      * @returns {string} 格式化的HTML
      */
-    formatStackTrace: function(stackTrace) {
+    formatStackTrace: function (stackTrace) {
         if (!stackTrace) return '';
 
         // 确保栈轨迹是字符串
@@ -303,12 +351,12 @@ const UIManager = {
      * @param {string} elementId 代码块元素ID
      * @param {string} content 内容
      */
-    addCopyButton: function(elementId,content) {
+    addCopyButton: function (elementId, content) {
         const codeBlock = document.getElementById(elementId);
         if (!codeBlock) return;
 
         // 检查是否已经添加了复制按钮
-        if (codeBlock.parentNode.querySelector('.copy-btn')){
+        if (codeBlock.parentNode.querySelector('.copy-btn')) {
             //添加了就删除
             const existingBtn = codeBlock.parentNode.querySelector('.copy-btn');
             existingBtn.remove();
@@ -352,8 +400,8 @@ const UIManager = {
     /**
      * 初始化栈轨迹的折叠/展开功能
      */
-    initStackToggle: function() {
-        document.addEventListener('click', function(e) {
+    initStackToggle: function () {
+        document.addEventListener('click', function (e) {
             if (e.target.classList.contains('toggle-stack') ||
                 e.target.parentElement.classList.contains('toggle-stack')) {
 
@@ -380,7 +428,7 @@ const UIManager = {
      * 显示首页 宽度100%
      * 隐藏详情页面
      */
-    openHome: function(param) {
+    openHome: function (param) {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const page_mode = document.getElementById('page_mode');
@@ -403,7 +451,7 @@ const UIManager = {
      * 显示详情 宽度100%
      * 隐藏首页页面
      */
-    openDetail: function(param) {
+    openDetail: function (param) {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const resizer = document.getElementById('resize-handle');
@@ -414,7 +462,7 @@ const UIManager = {
         detailPage.style.width = '100%';
         detailPage.style.maxWidth = '100%';
         detailPage.style.opacity = '1';
-        if(param?.id){
+        if (param?.id) {
             LogListManager.viewLogDetails(param?.id)
         }
 
@@ -424,12 +472,12 @@ const UIManager = {
     },
 
     //默认页面各展示
-    defaultPage: function(param) {
+    defaultPage: function (param) {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const page_mode = document.getElementById('page_mode');
         const resizer = document.getElementById('resize-handle');
-        if (!listPage || !detailPage||!resizer) return;
+        if (!listPage || !detailPage || !resizer) return;
 
         resizer.style.display = 'block';
         // 显示首页
@@ -445,7 +493,7 @@ const UIManager = {
         page_mode.textContent = '双列模式';
     },
     //     跳转路由hash
-    jumpHash: function(hash) {
+    jumpHash: function (hash) {
         if (!hash) return;
         window.location.hash = hash;
     },
@@ -454,7 +502,7 @@ const UIManager = {
      * 显示加载动画
      * @param {boolean} show 是否显示加载动画
      */
-    showLoading: function(show) {
+    showLoading: function (show) {
         const loadingOverlay = document.getElementById('loading-overlay');
         if (show) {
             loadingOverlay.style.display = 'block';
@@ -467,7 +515,7 @@ const UIManager = {
      * 更新文档标题
      * @param {string} title 文档标题
      */
-    updateDocumentTitle: function(title) {
+    updateDocumentTitle: function (title) {
         const titleElement = document.getElementById('document-title');
         if (titleElement) {
             titleElement.textContent = title || '文档编辑器';
@@ -478,7 +526,7 @@ const UIManager = {
      * 初始化拖动大小组件
      * 可以拖动调整列表和详情页面的大小
      */
-    initResizable: function() {
+    initResizable: function () {
         const listPage = document.getElementById('list-panel');
         const detailPage = document.getElementById('detail-panel');
         const resizer = document.getElementById('resize-handle');
