@@ -8,7 +8,8 @@ const ConfigManager = {
     config: {
         "apiBasePath": '', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
         pageSize: 20,    // 每页显示的记录数
-        path: 'api-logs' // API日志路径
+        path: 'api-logs', // API日志路径
+        "title": '' // 文档标题
     },
 
     configLoaded: false,
@@ -28,5 +29,8 @@ const ConfigManager = {
 
         return `${this.config.apiBasePath}/${this.config.path}${endpoint}`;
     },
-    hash:null
+    hash:null,
+    getTitle(){
+        return this.config.title;
+    }
 };

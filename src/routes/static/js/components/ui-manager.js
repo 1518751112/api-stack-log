@@ -551,5 +551,16 @@ const UIManager = {
             isResizing = false;
             document.body.style.cursor = 'default';
         });
-    }
+    },
+
+    /**
+     * 修改html标题
+     */
+    updateHtmlTitle: function (title) {
+        title = title || 'API 日志查询系统';
+        document.title = title;
+
+        const [titleElement] = document.getElementsByClassName('navbar-brand');
+        if(titleElement)titleElement.textContent = title;
+    },
 }

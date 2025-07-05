@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         LogListManager.init();
 
         UIManager.initResizable();
+        UIManager.updateHtmlTitle(ConfigManager.getTitle());
 
         // 应用加载完成
         console.log('API 日志查询系统已初始化');

@@ -11,7 +11,7 @@ import {getIp, jwtEncodeInExpire} from "../utils/crypt.util";
 const router = Router();
 
 // 设置路由前缀
-export function setRoutePrefix(prefix: string, uiService?: string) {
+export function setRoutePrefix(prefix: string, uiService?: string,title?:string) {
   //动态修改文件配置信息
   //读取文件config-manager.js
     const configPath = path.join(__dirname, './static/js/components/config-manager_base.js');
@@ -21,6 +21,9 @@ export function setRoutePrefix(prefix: string, uiService?: string) {
     //替换uiService
     if(uiService!=null){
         newContent = newContent.replace(/"apiBasePath":\s*['"]?[^'"]*['"]?/g, `"apiBasePath": '${uiService}'`);
+    }
+    if(title!=null){
+        newContent = newContent.replace(/"title":\s*['"]?[^'"]*['"]?/g, `"title": '${title}'`);
     }
     //没有当前文件就创建newConfigPath
     fs.writeFileSync(newConfigPath, newContent, 'utf-8');

@@ -167,6 +167,10 @@ export interface ApiLoggerOptions {
    * 访问UI文档鉴权 为了保护日志数据的安全性，可以设置一个UI文档密码
    */
   auth?: AuthOptions;
+  /**
+   * UI文档标题
+   */
+  title?:string;
 }
 
 /**
@@ -223,7 +227,7 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       console.log('API Logger: 日志中间件已注册');
 
       // 设置路由前缀
-      setRoutePrefix(config.routePrefix as string, config.uiService);
+      setRoutePrefix(config.routePrefix as string, config.uiService,config.title);
 
       // 注册日志查询路由
       //配置跨域信息

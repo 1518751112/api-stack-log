@@ -17,7 +17,8 @@ async function start(){
         auth:{
             password: '123',
             secret:"122dfg%f"
-        }
+        },
+        title:"API 日志系统"
     });
     // 示例路由
     app.get('/api', (req, res) => {
