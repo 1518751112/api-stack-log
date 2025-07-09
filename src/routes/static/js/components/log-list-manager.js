@@ -230,24 +230,123 @@ const LogListManager = /** @type {LogListManager} */ ({
 
         pagination.appendChild(prevLi);
 
-        // 页码按钮
+        // 页码按钮逻辑
         let startPage = Math.max(1, this.currentPage - 2);
-        let endPage = Math.min(totalPages, startPage + 4);
+        let num = 3;
 
-        if (endPage - startPage < 4) {
-            startPage = Math.max(1, endPage - 4);
+        let endPage = Math.min(totalPages, startPage + num);
+
+        if (endPage - startPage < num) {
+            startPage = Math.max(1, endPage - num);
         }
 
-        for (let i = startPage; i <= endPage; i++) {
-            const pageLi = document.createElement('li');
-            pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
-            pageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${i}</div>`;
+        // 创建可点击的省略号元素
+        const createClickableEllipsis = (totalPages) => {
+            const ellipsisLi = document.createElement('li');
+            ellipsisLi.className = 'page-item';
+            ellipsisLi.innerHTML = '<div class="page-link" style="cursor: pointer;">...</div>';
 
-            if (i !== this.currentPage) {
-                pageLi.addEventListener('click', () => this.goToPage(i));
+            const ellipsisLink = ellipsisLi.querySelector('.page-link');
+            ellipsisLink.addEventListener('click', () => {
+                // 创建输入框
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'form-control form-control-sm';
+                input.style.cssText = 'width: 50px; text-align: center; padding: 2px; border: 1px solid #dee2e6;';
+                input.min = '1';
+                input.max = totalPages.toString();
+                input.placeholder = '页码';
+
+                // 替换省略号为输入框
+                ellipsisLink.innerHTML = '';
+                ellipsisLink.appendChild(input);
+                ellipsisLink.style.padding = '2px';
+
+                // 自动获取焦点
+                input.focus();
+
+                // 处理回车键跳转
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const page = parseInt(input.value);
+                        if (page >= 1 && page <= totalPages) {
+                            this.goToPage(page);
+                        } else {
+                            UIManager.showAlert(`请输入1-${totalPages}之间的页码`, 'warning');
+                        }
+                    }
+                });
+
+                // 失去焦点时恢复省略号
+                input.addEventListener('blur', () => {
+                    ellipsisLink.innerHTML = '...';
+                    ellipsisLink.style.padding = '';
+                });
+            });
+
+            return ellipsisLi;
+        };
+
+        // 始终显示第一页
+        if (endPage > totalPages-2) {
+            const firstPageLi = document.createElement('li');
+            firstPageLi.className = `page-item ${1 === this.currentPage ? 'active' : ''}`;
+            firstPageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">1</div>`;
+
+            if (1 !== this.currentPage) {
+                firstPageLi.addEventListener('click', () => this.goToPage(1));
             }
 
-            pagination.appendChild(pageLi);
+            pagination.appendChild(firstPageLi);
+
+            pagination.appendChild(createClickableEllipsis(totalPages));
+
+        }
+
+        // 显示中间页码
+        for (let i = startPage; i <= endPage; i++) {
+            // 第一页已经显示过了，跳过
+            // 最后一页在后面单独处理
+            if ((i === 1 && startPage === 1)||(i === totalPages && endPage === totalPages)) {
+
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${i}</div>`;
+
+                if (i !== this.currentPage) {
+                    pageLi.addEventListener('click', () => this.goToPage(i));
+                }
+
+                pagination.appendChild(pageLi);
+            }else if (i !== 1 && i !== totalPages) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${i}</div>`;
+
+                if (i !== this.currentPage) {
+                    pageLi.addEventListener('click', () => this.goToPage(i));
+                }
+
+                pagination.appendChild(pageLi);
+            }
+        }
+
+        // 始终显示最后一页
+        if (endPage < totalPages) {
+            // 如果结束页码小于总页数-1，显示可点击的省略号
+            if (endPage < totalPages - 1) {
+                pagination.appendChild(createClickableEllipsis(totalPages));
+            }
+
+            const lastPageLi = document.createElement('li');
+            lastPageLi.className = `page-item ${totalPages === this.currentPage ? 'active' : ''}`;
+            lastPageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${totalPages}</div>`;
+
+            if (totalPages !== this.currentPage) {
+                lastPageLi.addEventListener('click', () => this.goToPage(totalPages));
+            }
+
+            pagination.appendChild(lastPageLi);
         }
 
         // 下一页
@@ -260,6 +359,8 @@ const LogListManager = /** @type {LogListManager} */ ({
         }
 
         pagination.appendChild(nextLi);
+
+
     },
     /**
      * 跳转到指定页
