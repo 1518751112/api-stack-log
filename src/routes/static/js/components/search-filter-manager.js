@@ -27,55 +27,93 @@ const SearchFilterManager = {
     handleSearch: function(e) {
         e.preventDefault();
 
-        // 收集搜索参数
-        const searchParams = {
-            id: document.getElementById('search-id').value.trim(),
-            path: document.getElementById('search-path').value.trim(),
-            method: document.getElementById('search-method').value,
-            status: document.getElementById('search-status').value,
-            ip: document.getElementById('search-ip').value.trim(),
-            startDate: document.getElementById('search-start-date').value,
-            endDate: document.getElementById('search-end-date').value,
-            requestBody: document.getElementById('search-request-body').value.trim(),
-            responseBody: document.getElementById('search-response-body').value.trim(),
-            stack: document.getElementById('search-stack').value.trim(),
-            headers: document.getElementById('search-headers').value.trim()
-        };
+        const searchBtn = document.getElementById('search');
+        const originalText = searchBtn.innerHTML;
 
-        // 移除空值
-        Object.keys(searchParams).forEach(key => {
-            if (!searchParams[key]) {
-                delete searchParams[key];
-            }
-        });
+        // 显示loading状态
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>查询中...';
 
-        // 保存当前搜索参数
-        SearchFilterManager.currentSearchParams = searchParams;
+        try {
+            // 收集搜索参数
+            const searchParams = {
+                id: document.getElementById('search-id').value.trim(),
+                path: document.getElementById('search-path').value.trim(),
+                method: document.getElementById('search-method').value,
+                status: document.getElementById('search-status').value,
+                ip: document.getElementById('search-ip').value.trim(),
+                startDate: document.getElementById('search-start-date').value,
+                endDate: document.getElementById('search-end-date').value,
+                requestBody: document.getElementById('search-request-body').value.trim(),
+                responseBody: document.getElementById('search-response-body').value.trim(),
+                stack: document.getElementById('search-stack').value.trim(),
+                headers: document.getElementById('search-headers').value.trim()
+            };
 
-        // 重置为第一页并加载数据
-        LogListManager.currentPage = 1;
-        LogListManager.loadLogs();
+            // 移除空值
+            Object.keys(searchParams).forEach(key => {
+                if (!searchParams[key]) {
+                    delete searchParams[key];
+                }
+            });
 
-        // 隐藏筛选面板
-        /*const filterPanel = document.getElementById('filter-panel');
-        if (Object.keys(searchParams).length > 0 && filterPanel.style.display !== 'none') {
-            UIManager.toggleFilterPanel();
-        }*/
+            // 保存当前搜索参数
+            SearchFilterManager.currentSearchParams = searchParams;
+
+            // 重置为第一页并加载数据
+            LogListManager.currentPage = 1;
+            
+            // 加载数据完成后恢复按钮状态
+            LogListManager.loadLogs().finally(() => {
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = originalText;
+            });
+
+            // 隐藏筛选面板
+            /*const filterPanel = document.getElementById('filter-panel');
+            if (Object.keys(searchParams).length > 0 && filterPanel.style.display !== 'none') {
+                UIManager.toggleFilterPanel();
+            }*/
+        } catch (error) {
+            // 发生错误时恢复按钮状态
+            searchBtn.disabled = false;
+            searchBtn.innerHTML = originalText;
+            throw error;
+        }
     },
 
     /**
      * 重置搜索表单
      */
     resetSearch: function() {
-        // 重置表单字段
-        document.getElementById('search-form').reset();
+        const resetBtn = document.getElementById('reset-btn');
+        const originalText = resetBtn.innerHTML;
 
-        // 清空搜索参数
-        SearchFilterManager.currentSearchParams = {};
+        // 显示loading状态
+        resetBtn.disabled = true;
+        resetBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>重置中...';
 
-        // 重置为第一页并加载数据
-        LogListManager.currentPage = 1;
-        LogListManager.loadLogs();
+        try {
+            // 重置表单字段
+            document.getElementById('search-form').reset();
+
+            // 清空搜索参数
+            SearchFilterManager.currentSearchParams = {};
+
+            // 重置为第一页并加载数据
+            LogListManager.currentPage = 1;
+            
+            // 加载数据完成后恢复按钮状态
+            LogListManager.loadLogs().finally(() => {
+                resetBtn.disabled = false;
+                resetBtn.innerHTML = originalText;
+            });
+        } catch (error) {
+            // 发生错误时恢复按钮状态
+            resetBtn.disabled = false;
+            resetBtn.innerHTML = originalText;
+            throw error;
+        }
     },
 
     /**
