@@ -203,7 +203,9 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
       // 如果配置了在响应头中包含ID，则添加
       if (options.includeIdInHeader) {
         const headerName = options.requestIdHeaderName || 'X-Request-Id';
-        res.setHeader(headerName, requestInfo.id);
+        try{
+          res.setHeader(headerName, requestInfo.id);
+        } catch (error) {}
       }
       // 执行原始的end方法
       const result = originalEnd.apply(res, arguments as any);

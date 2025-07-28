@@ -435,7 +435,17 @@ const LogListManager = /** @type {LogListManager} */ ({
             reissueButton.replaceWith(newReissueButton);
 
             newReissueButton.addEventListener('click', () => {
-                this.resendRequest(logDetails);
+                const originalText = newReissueButton.innerHTML;
+
+                // 显示loading状态
+                newReissueButton.disabled = true;
+                newReissueButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>重发中...';
+
+                this.resendRequest(logDetails).finally(v=>{
+                    // 恢复按钮状态
+                    newReissueButton.disabled = false;
+                    newReissueButton.innerHTML = originalText;
+                });
             });
             // 获取方法的样式类
             const methodClass = UIManager.getMethodClass(logDetails.method);
