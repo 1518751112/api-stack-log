@@ -4,6 +4,7 @@ import apiLoggerMiddleware from './src/middleware/apiLogger';
 import logRoutes, {setRoutePrefix} from './src/routes/log';
 import {initDatabase} from './src/db/logdb';
 import guard from "./src/lib/guard";
+import {Op} from "sequelize";
 
 type StaticOrigin = boolean | string | RegExp | (string | RegExp)[];
 export type CustomOrigin = (requestOrigin: string, callback: (err: Error | null, origin?: StaticOrigin) => void) => void;
@@ -265,7 +266,7 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
             // 按天数清理
             if ((config.maxDays ?? 0) > 0) {
               const expire = new Date(Date.now() - (config.maxDays ?? 0) * 24 * 60 * 60 * 1000);
-              const delNum = await ApiLog.destroy({ where: { timestamp: { ['lt']: expire } } });
+              const delNum = await ApiLog.destroy({ where: { timestamp: { [Op.lt]: expire } } });
               if (delNum > 0) console.log(`[API Logger] 已自动清理过期日志 ${delNum} 条`);
             }
           } catch (e) {
