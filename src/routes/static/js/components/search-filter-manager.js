@@ -45,6 +45,7 @@ const SearchFilterManager = {
                 startDate: document.getElementById('search-start-date').value,
                 endDate: document.getElementById('search-end-date').value,
                 requestBody: document.getElementById('search-request-body').value.trim(),
+                query: document.getElementById('search-request-query').value.trim(),
                 responseBody: document.getElementById('search-response-body').value.trim(),
                 stack: document.getElementById('search-stack').value.trim(),
                 headers: document.getElementById('search-headers').value.trim()
@@ -62,7 +63,7 @@ const SearchFilterManager = {
 
             // 重置为第一页并加载数据
             LogListManager.currentPage = 1;
-            
+
             // 加载数据完成后恢复按钮状态
             LogListManager.loadLogs().finally(() => {
                 searchBtn.disabled = false;
@@ -102,7 +103,7 @@ const SearchFilterManager = {
 
             // 重置为第一页并加载数据
             LogListManager.currentPage = 1;
-            
+
             // 加载数据完成后恢复按钮状态
             LogListManager.loadLogs().finally(() => {
                 resetBtn.disabled = false;

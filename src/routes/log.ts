@@ -107,6 +107,13 @@ router.get('/', async (req: Request, res: Response) => {
       };
     }
 
+    // 查询内容查询
+    if (req.query.query) {
+      where.query = {
+        [Op.like]: `%${req.query.query}%`
+      };
+    }
+
     // 响应内容查询
     if (req.query.responseBody) {
       where.responseBody = {
