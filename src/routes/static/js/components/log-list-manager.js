@@ -642,7 +642,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         };
         if(query){
             // 构建查询参数
-            const queryParams = SearchFilterManager.buildQueryParams(JSON.parse(query));
+            const queryParams = new URLSearchParams(JSON.parse(query)).toString();
 
             // 发起API请求
             url = `${url}?${queryParams}`
