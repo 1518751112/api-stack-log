@@ -135,6 +135,34 @@ const UIManager = {
         }, duration);
     },
 
+    copy: async function (textToCopy) {
+        // navigator clipboard 需要https等安全上下文
+        if (navigator.clipboard && window.isSecureContext) {
+            // navigator clipboard 向剪贴板写文本
+            return navigator.clipboard.writeText(textToCopy);
+        } else {
+            if(!document.execCommand){
+                throw new Error('当前浏览器不支持复制功能，请手动复制');
+            }
+            // 创建text area
+            let textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            // 使text area不在viewport，同时设置不可见
+            textArea.style.position = "absolute";
+            textArea.style.opacity = 0;
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            return new Promise((res, rej) => {
+                // 执行复制命令并移除文本框
+                document.execCommand('copy') ? res() : rej();
+                textArea.remove();
+            });
+        }
+    },
+
     /**
      * 格式化日期时间
      * @param {string} dateString 日期字符串
@@ -380,7 +408,7 @@ const UIManager = {
         copyBtn.addEventListener('click', () => {
             const textToCopy = content || '';
 
-            navigator.clipboard.writeText(textToCopy)
+            this.copy(textToCopy)
                 .then(() => {
                     copyBtn.innerHTML = '<i class="bi bi-check"></i> 已复制';
                     setTimeout(() => {

@@ -65,22 +65,22 @@ const LogListManager = /** @type {LogListManager} */ ({
      * @param options
      * @returns {Promise<Response>}
      */
-    fetch: async function(url, options = {}) {
+    fetch: async function (url, options = {}) {
         // 添加认证头
         const token = this.getToken();
         if (token) {
-            options.headers = (options.headers||{})
+            options.headers = (options.headers || {})
             options.headers['Authorization'] = `Bearer ${token}`
         }
         const result = await fetch(url, options);
-        if(result.status===401){
+        if (result.status === 401) {
             // 如果未授权，提示登录
             UIManager.showAlert('请先登录', 'warning');
             this.login();
             return {
                 ok: false,
                 status: 401,
-                json: async () => ({ message: '未授权，请登录' })
+                json: async () => ({message: '未授权，请登录'})
             };
         }
         return result
@@ -88,7 +88,7 @@ const LogListManager = /** @type {LogListManager} */ ({
     /**
      * 加载日志列表数据
      */
-    loadLogs: async function() {
+    loadLogs: async function () {
 
         try {
             // 构建查询参数
@@ -130,7 +130,7 @@ const LogListManager = /** @type {LogListManager} */ ({
      * 渲染日志列表
      * @param {Array} logs 日志数据数组
      */
-    renderLogs: function(logs) {
+    renderLogs: function (logs) {
         const tableBody = document.getElementById('logs-table-body');
         tableBody.innerHTML = '';
 
@@ -141,13 +141,13 @@ const LogListManager = /** @type {LogListManager} */ ({
 
         document.getElementById('table-empty').style.display = 'none';
 
-        logs.forEach((log,index) => {
+        logs.forEach((log, index) => {
             const row = document.createElement('tr');
             row.className = 'log-row';
             row.innerHTML = `
-                <td>${index+1}</td>
+                <td>${index + 1}</td>
                 <td class="view-btn" style="cursor: pointer;color:#005aef" title="${log.id}">${log.id}</td>
-                <td>${UIManager.formatDate(log.timestamp,true)}</td>
+                <td>${UIManager.formatDate(log.timestamp, true)}</td>
                 <td>
                     <span class="badge ${UIManager.getMethodClass(log.method)}">${log.method}</span>
                 </td>
@@ -162,9 +162,9 @@ const LogListManager = /** @type {LogListManager} */ ({
             // 为整行添加点击事件监听器
             row.addEventListener('click', () => {
                 event.stopPropagation(); // 防止事件冒泡
-                if(ConfigManager.hash=='list'){
+                if (ConfigManager.hash == 'list') {
                     UIManager.jumpHash('info?id=' + log.id);
-                }else{
+                } else {
                     //从右边查看详情
                     this.viewLogDetails(log.id)
                 }
@@ -183,7 +183,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             if (viewBtn) {
                 viewBtn.addEventListener('click', (event) => {
                     event.stopPropagation(); // 防止事件冒泡
-                    navigator.clipboard.writeText(log.id).then(() => {
+                    UIManager.copy(log.id).then(() => {
                         UIManager.showAlert('已复制id到剪贴板', 'success');
                     }).catch(err => {
                         console.error('复制失败:', err);
@@ -211,7 +211,7 @@ const LogListManager = /** @type {LogListManager} */ ({
      * 更新分页控件
      * @param {number} totalPages 总页数
      */
-    updatePagination: function(totalPages) {
+    updatePagination: function (totalPages) {
         const pagination = document.getElementById('pagination');
         pagination.innerHTML = '';
 
@@ -288,7 +288,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         };
 
         // 始终显示第一页
-        if (endPage > totalPages-2) {
+        if (endPage > totalPages - 2) {
             const firstPageLi = document.createElement('li');
             firstPageLi.className = `page-item ${1 === this.currentPage ? 'active' : ''}`;
             firstPageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">1</div>`;
@@ -307,7 +307,7 @@ const LogListManager = /** @type {LogListManager} */ ({
         for (let i = startPage; i <= endPage; i++) {
             // 第一页已经显示过了，跳过
             // 最后一页在后面单独处理
-            if ((i === 1 && startPage === 1)||(i === totalPages && endPage === totalPages)) {
+            if ((i === 1 && startPage === 1) || (i === totalPages && endPage === totalPages)) {
 
                 const pageLi = document.createElement('li');
                 pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
@@ -318,7 +318,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                 }
 
                 pagination.appendChild(pageLi);
-            }else if (i !== 1 && i !== totalPages) {
+            } else if (i !== 1 && i !== totalPages) {
                 const pageLi = document.createElement('li');
                 pageLi.className = `page-item ${i === this.currentPage ? 'active' : ''}`;
                 pageLi.innerHTML = `<div class="page-link" style="cursor: pointer;">${i}</div>`;
@@ -366,13 +366,13 @@ const LogListManager = /** @type {LogListManager} */ ({
      * 跳转到指定页
      * @param {number} page 页码
      */
-    goToPage: function(page) {
+    goToPage: function (page) {
         this.currentPage = page;
 
         // 平滑滚动到表格顶部
         const tableElement = document.getElementById('logs-table-body');
         if (tableElement) {
-            tableElement.scrollIntoView({ behavior: 'smooth' });
+            tableElement.scrollIntoView({behavior: 'smooth'});
         }
 
         // 延迟加载以便动画看起来更流畅
@@ -380,25 +380,25 @@ const LogListManager = /** @type {LogListManager} */ ({
             this.loadLogs();
         }, 300);
     },
-    logId:null,
+    logId: null,
     /**
      * 查看日志详情
      * @param {string} id 日志ID
      */
-    viewLogDetails: async function(id) {
+    viewLogDetails: async function (id) {
         try {
             // 显示详情页面，添加动画
             const detailPage = document.getElementById('detail-page');
             UIManager.showDetailPage(detailPage);
-            if(ConfigManager.hash=='info'){
+            if (ConfigManager.hash == 'info') {
                 //显示返回按钮
                 document.getElementById('back-btn').style.display = 'block';
-            }else{
+            } else {
                 //隐藏返回按钮
                 document.getElementById('back-btn').style.display = 'none';
             }
 
-            if(id==this.logId)return
+            if (id == this.logId) return
             this.logId = id
             // 发起API请求
             const response = await this.fetch(ConfigManager.getApiUrl(`/info/${id}`));
@@ -412,7 +412,6 @@ const LogListManager = /** @type {LogListManager} */ ({
             const logDetails = await response.json();
 
 
-
             // 填充基本信息
             document.getElementById('detail-id').textContent = logDetails.id;
             document.getElementById('detail-timestamp').textContent = UIManager.formatDate(logDetails.timestamp, true);
@@ -422,7 +421,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             detailCopyButton.replaceWith(newDetailCopyButton);
 
             newDetailCopyButton.addEventListener('click', () => {
-                navigator.clipboard.writeText(JSON.stringify(logDetails)).then(() => {
+                UIManager.copy(JSON.stringify(logDetails)).then(() => {
                     UIManager.showAlert('已复制到剪贴板', 'success');
                 }).catch(err => {
                     console.error('复制失败:', err);
@@ -441,7 +440,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                 newReissueButton.disabled = true;
                 newReissueButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>重发中...';
 
-                this.resendRequest(logDetails).finally(v=>{
+                this.resendRequest(logDetails).finally(v => {
                     // 恢复按钮状态
                     newReissueButton.disabled = false;
                     newReissueButton.innerHTML = originalText;
@@ -464,61 +463,61 @@ const LogListManager = /** @type {LogListManager} */ ({
             // 填充选项卡内容，使用JSON格式化并高亮显示
             const formatAndDisplay = (elementId, content) => {
                 const element = document.getElementById(elementId);
-                if(!content){
+                if (!content) {
                     element.textContent = '无数据';
-                    UIManager.addCopyButton(elementId,''); // 添加复制按钮
+                    UIManager.addCopyButton(elementId, ''); // 添加复制按钮
                     return
                 }
                 let obj;
 
                 try {
                     obj = JSON.parse(content)
-                }catch (e) {
+                } catch (e) {
                     obj = content
                 }
-                if(obj == null || typeof obj != 'object' || Array.isArray(obj)){
-                    UIManager.formatAndHighlightJson(content,element);
-                }else{
+                if (obj == null || typeof obj != 'object' || Array.isArray(obj)) {
+                    UIManager.formatAndHighlightJson(content, element);
+                } else {
 
                     try {
-                        const {default:JsonView} = window['react-json-view'];
+                        const {default: JsonView} = window['react-json-view'];
                         //计算字符串长度超过200kb就折叠
                         let collapsed = false
-                        if(content.length>200000){
+                        if (content.length > 200000) {
                             obj = JSON.parse(content);
                             collapsed = 1;
                         }
                         const options = {
                             key: Date.now(),
-                            value: obj,style:style,
+                            value: obj, style: style,
                             collapsed,          // 控制是否折叠所有节点（默认展开）[1,3](@ref)
                             indentWidth: 6,            // 缩进宽度，单位字符[1,4](@ref)
                             enableClipboard: true,     // 启用复制功能[1,6](@ref)
                             displayDataTypes: false,    // 隐藏数据类型前缀[1,4](@ref)
-                            shortenTextAfterLength:0
+                            shortenTextAfterLength: 0
                         }
                         try {
                             ReactDOM.render(
                                 React.createElement(JsonView, options),
                                 element
                             );
-                        }catch (e) {
-                            if(e.message.includes('removeChild')){
+                        } catch (e) {
+                            if (e.message.includes('removeChild')) {
                                 ReactDOM.render(
                                     React.createElement(JsonView, options),
                                     element
                                 );
-                            }else{
+                            } else {
                                 throw e;
                             }
                         }
 
-                    }catch (e) {
+                    } catch (e) {
                         element.textContent = content;
                     }
                 }
 
-                UIManager.addCopyButton(elementId,content); // 添加复制按钮
+                UIManager.addCopyButton(elementId, content); // 添加复制按钮
 
 
             };
@@ -539,7 +538,7 @@ const LogListManager = /** @type {LogListManager} */ ({
     /**
      * 页面初始化
      */
-    init: function() {
+    init: function () {
         // 注册返回列表按钮事件
         document.getElementById('back-btn').addEventListener('click', UIManager.backToList);
         //每页数量控制
@@ -558,23 +557,23 @@ const LogListManager = /** @type {LogListManager} */ ({
         // 初始化栈轨迹折叠功能
         UIManager.initStackToggle();
         const page_mode = document.getElementById('page_mode');
-        page_mode.addEventListener('click',()=>{
-            if(ConfigManager.hash=='list'){
+        page_mode.addEventListener('click', () => {
+            if (ConfigManager.hash == 'list') {
                 UIManager.jumpHash('/');
                 page_mode.textContent = "双列模式"
-            }else if(ConfigManager.hash!='info'){
+            } else if (ConfigManager.hash != 'info') {
                 UIManager.jumpHash('list');
                 page_mode.textContent = "单列模式"
             }
         })
 
         const pre_url = document.getElementById('set-pre-url');
-        pre_url.addEventListener('click', ()=>{
+        pre_url.addEventListener('click', () => {
             this.setPreUrl(localStorage.getItem('preUrl'))
         })
     },
     //登陆
-    login:async function (){
+    login: async function () {
         //弹窗输入密码
         const password = prompt('请输入密码');
         if (!password) {
@@ -588,7 +587,7 @@ const LogListManager = /** @type {LogListManager} */ ({
                     'Content-Type': 'application/json',
                     'Accept': '*/*'
                 },
-                body: JSON.stringify({ password })
+                body: JSON.stringify({password})
             });
 
             if (!response.ok) {
@@ -610,7 +609,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             UIManager.showAlert('登录失败，请重试', 'danger');
         }
     },
-    setToken: function (token){
+    setToken: function (token) {
         localStorage.setItem('api_log_token', token);
     },
     getToken: function () {
@@ -622,7 +621,7 @@ const LogListManager = /** @type {LogListManager} */ ({
      * 重发请求
      * @param  logDetails 日志详情对象
      */
-    resendRequest: async function(logDetails) {
+    resendRequest: async function (logDetails) {
         const preUrl = this.getPreUrl();
         if (!preUrl) {
             return;
@@ -640,7 +639,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             headers: JSON.parse(headers),
             body: body,
         };
-        if(query){
+        if (query) {
             // 构建查询参数
             const queryParams = new URLSearchParams(JSON.parse(query)).toString();
 
@@ -653,16 +652,16 @@ const LogListManager = /** @type {LogListManager} */ ({
         if (!response.ok) {
             UIManager.showAlert('重发请求失败', 'danger');
             throw new Error(`HTTP error! status: ${response.status}`);
-        }else{
+        } else {
             UIManager.showAlert('重发请求成功,页面已刷新', 'success');
             // 重新加载日志列表
             this.loadLogs();
         }
-        console.log("重发信息",response)
+        console.log("重发信息", response)
 
     },
     //获取重发请求前置url
-    getPreUrl: function() {
+    getPreUrl: function () {
         //从存储中获取
         const preUrl = localStorage.getItem('preUrl');
         if (preUrl) {
@@ -672,10 +671,10 @@ const LogListManager = /** @type {LogListManager} */ ({
         }
     },
     //设置重发请求前置url
-    setPreUrl: function(url) {
+    setPreUrl: function (url) {
         // 如果没有存储就弹出输入框输入存储
         const inputUrl = prompt('请输入重发请求的前置URL', url);
-        if(inputUrl==null)return
+        if (inputUrl == null) return
         localStorage.setItem('preUrl', inputUrl);
         if (inputUrl) {
             // 存储到localStorage
