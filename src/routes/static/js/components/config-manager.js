@@ -6,7 +6,7 @@
 const ConfigManager = {
     // 配置
     config: {
-        "apiBasePath": 'http://127.0.0.1:10575', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
+        "apiBasePath": '', // 默认使用相对路径，可以通过修改这个值来配置不同的API路径
         pageSize: 20,    // 每页显示的记录数
         path: 'api-logs', // API日志路径
         "title": '' // 文档标题
