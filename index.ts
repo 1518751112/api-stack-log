@@ -218,8 +218,31 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
       // 同步数据库模型
       if (config.syncDatabase) {
         try {
-          await dbInstance.sync();
-          console.log('API Logger: 数据库同步成功');
+          //先查询一次
+          let alterSync = false
+          try {
+            //获取数据库表信息 不是字段信息
+            const [tableInfo] = await dbInstance.query(`SELECT * FROM ${ApiLog.tableName} LIMIT 1;`);
+            //判断字段是否完全相同
+            const modelAttributes = Object.keys(ApiLog.rawAttributes);
+            const tableColumns = Object.keys(tableInfo[0] || {});
+            const allMatch = modelAttributes.every(attr => tableColumns.includes(attr)) &&
+              tableColumns.every(col => modelAttributes.includes(col));
+            if (!allMatch) {
+              alterSync = true
+              console.log('API Logger: 数据库表结构与模型不匹配，准备更新表结构');
+            } else {
+              console.log('API Logger: 数据库表结构与模型匹配，无需更新');
+            }
+          }catch (e) {
+            alterSync = true
+            console.log('API Logger: 需要创建或更新数据库表结构', e);
+          }
+
+          if(alterSync){
+            await dbInstance.sync({ alter: true, force: false });
+            console.log('API Logger: 数据库同步成功');
+          }
         }catch (e) {
             console.error('API Logger: 数据库同步失败', e);
         }
