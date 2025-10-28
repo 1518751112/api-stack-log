@@ -235,7 +235,7 @@ router.get('/stats/summary', async (req: Request, res: Response) => {
 });
 
 
-const getRouter = (auth?:AuthOptions) => {
+const getRouter = (auth?:AuthOptions):Router => {
   if(auth){
     /**
      * 登录

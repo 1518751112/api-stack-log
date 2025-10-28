@@ -527,6 +527,7 @@ const LogListManager = /** @type {LogListManager} */ ({
             formatAndDisplay('detail-requestBody', logDetails.requestBody);
             formatAndDisplay('detail-responseBody', logDetails.responseBody);
             formatAndDisplay('detail-stack', logDetails.stack);
+            formatAndDisplay('detail-print', logDetails.printData);
 
 
         } catch (error) {

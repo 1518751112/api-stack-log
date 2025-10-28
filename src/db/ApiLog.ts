@@ -15,6 +15,7 @@ export interface ApiLogAttributes {
   query?: string;
   params?: string;
   stack?: string;
+  printData?: string; // 存储打印数据
   timestamp: Date;
 }
 
@@ -35,6 +36,7 @@ class ApiLog extends Model<ApiLogAttributes, ApiLogCreationAttributes> implement
   public query?: string;
   public params?: string;
   public stack?: string;
+  public printData?: string; // 存储打印数据
   public timestamp!: Date;
 }
 
@@ -87,6 +89,10 @@ const ApiLogInit = (sequelize:Sequelize)=>{
                 allowNull: true,
             },
             stack: {
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
+            printData: {
                 type: DataTypes.TEXT,
                 allowNull: true,
             },

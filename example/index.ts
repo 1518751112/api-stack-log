@@ -1,5 +1,5 @@
 import express from 'express';
-import initApiLogger from '../index';
+import initApiLogger, { print } from '../index';
 import {join} from "path";
 
 const app = express();
@@ -22,6 +22,11 @@ async function start(){
     });
     // 示例路由
     app.get('/api', (req, res) => {
+        // 使用 print 方法记录调试信息
+        print('API 请求开始处理');
+        print('请求方法:', req.method);
+        print('请求路径:', req.path);
+        
         // 自动追踪的 Express 中间件会记录此路由
         res.json({ message: 'Hello from OpenTelemetry!' });
     });
@@ -29,9 +34,18 @@ async function start(){
 // 带子路由的示例
     app.get('/api/user/:id', (req, res) => {
         const userId = req.params.id;
+        
+        // 使用 print 记录用户查询
+        print('开始查询用户信息');
+        print('用户ID:', userId);
+        print('查询参数:', req.query);
 
         // 模拟业务逻辑
         setTimeout(() => {
+            // 在异步回调中也可以使用 print
+            print('用户查询完成');
+            print('返回用户数据:', { userId, name: 'John Doe' });
+            
             res.json({ userId, name: 'John Doe' });
         }, 100);
     });

@@ -288,5 +288,8 @@ export async function initApiLogger(app: Express, options: ApiLoggerOptions = {}
 // 导出模型和接口
 export { ApiLog };
 
+// 导出 print 方法
+export { print } from './src/utils/print';
+
 // 默认导出初始化函数
 export default initApiLogger;

@@ -17,6 +17,7 @@ API Stack Log provides comprehensive API request logging functionality for your 
 - Support for direct access to log details via URL✅
 - Support for request replay through logs✅
 - Access UI documentation authorization to protect the security of log data✅
+- Debug print functionality with asynchronous context tracking✅
 - Detailed log statistics❌ (API available but UI not yet implemented)
 
 ## Installation
@@ -131,6 +132,37 @@ app.use((req, res, next) => {
   next();
 });
 ```
+
+### Debug Print Functionality
+
+API Stack Log provides a `print` method that allows you to record debug information during request processing, which will be automatically associated with the corresponding API log:
+
+```typescript
+import { print } from 'api-stack-log';
+
+app.get('/api/users', async (req, res) => {
+  print('Starting user query request processing');
+  
+  const userId = req.query.id;
+  print('User ID:', userId);
+  
+  // Can also be used in asynchronous operations
+  setTimeout(() => {
+    print('Debug info in async operation');
+  }, 100);
+  
+  const userData = await getUserData(userId);
+  print('Retrieved user data:', userData);
+  
+  res.json(userData);
+});
+```
+
+Features of the `print` method:
+- Automatically associates with the current request's log record
+- Supports usage in asynchronous operations (based on Node.js AsyncLocalStorage)
+- Supports serialization of various data types
+- Debug information is displayed in the `printData` field of log details
 
 ### NestJS Integration
 

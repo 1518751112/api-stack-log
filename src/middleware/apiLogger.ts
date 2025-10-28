@@ -2,6 +2,8 @@ import {NextFunction, Request, Response} from 'express';
 import ApiLog from '../db/ApiLog';
 import {v4 as uuidv4} from 'uuid';
 import cleanStack from '../clean-stack';
+import {runWithRequestContext} from '../utils/print';
+import {getAllPrintData} from '../utils/print';
 import {ApiLoggerOptions} from "../../index";
 import {getIp} from "../utils/crypt.util";
 
@@ -236,12 +238,14 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
         while (retries > 0) {
           try {
             // 每次尝试都生成新的 UUID，避免 ID 冲突
+            const pintData = getAllPrintData(req);
             const logData = {
               ...requestInfo,
               id: retries === 3 ? requestInfo.id : uuidv4(), // 首次尝试使用原始 ID，重试时生成新 ID
               status: responseInfo.status,
               responseTime,
-              responseBody: responseInfo.responseBody
+              responseBody: responseInfo.responseBody,
+              printData: pintData?serializeAndTruncate(pintData): null // 获取所有打印数据
             };
 
             // 创建日志记录
@@ -266,6 +270,9 @@ export default function apiLoggerMiddleware(options: ApiLoggerOptions = {}) {
       }
 
 
-    next();
+    // 在异步上下文中调用 next()，确保后续中间件可以访问请求上下文
+    runWithRequestContext(req, res, () => {
+      next();
+    });
   };
 }

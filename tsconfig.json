@@ -9,8 +9,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "sourceMap": true,
-    "declarationMap": true
+    "sourceMap": false,
+    "declarationMap": false
   },
   "include": ["src", "index.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
